@@ -54,7 +54,7 @@ export const products = [
     id: 7,
     name: "Cooler 45L",
     price: 42000,
-    image: "cooler.png",
+    image: require("../../assets/images/cooler.png"),
     details:
       "<table border='1'> <tr> <th>Control Method</th> <th>Touch Panel & Remote Control</th> <th>Touch Panel & Remote Control</th> </tr> <tr> <td>Product Dimension (mm)</td> <td>520*350*1125</td> <td>480*324*970</td> </tr> <tr> <td>N.W./G.W. (Kg)</td> <td>13.3/15.7</td> <td>10.5/12.5</td> </tr> <tr> <td>Water Tank Capacity</td> <td>55L</td> <td>45L</td> </tr> <tr> <td>Air Flow Volume (m³/h)</td> <td>6000m³/h</td> <td>3500m³/h</td> </tr> <tr> <td>Rated Power</td> <td>180W</td> <td>120W</td> </tr> <tr> <td>Features/Description</td> <td>1. 3 speed choices</td> <td>1. 3 speed choices</td> </tr> </table>",
   },

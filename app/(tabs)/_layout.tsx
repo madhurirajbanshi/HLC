@@ -1,8 +1,8 @@
-import { Tabs } from 'expo-router'
-import React from 'react'
-import { Text, Image } from 'react-native'
+import { Tabs } from 'expo-router';
+import React from 'react';
+import { Text, Image } from 'react-native';
+import { Ionicons } from '@expo/vector-icons'; // Ionicons from Expo
 
-// Use require for image
 const logo = require("../../assets/images/crousel_one.png");
 
 const _layout = () => {
@@ -25,41 +25,47 @@ const _layout = () => {
       <Tabs.Screen
         name="index"
         options={{
-          headerTitle: () => (
+          headerLeft: () => (
             <Image
               source={logo}
-              style={{ width: 120, height: 40, resizeMode: 'contain' }}
+              style={{ width: 120, height: 40, resizeMode: 'contain', marginLeft: 10 }}
+            />
+          ),
+          headerTitle: '',  // Hide title since logo and search icon are enough
+          headerRight: () => (
+            <Ionicons
+              name="search"
+              size={24}
+              color="#fff"
+              style={{ marginRight: 15 }}
             />
           ),
           tabBarIcon: ({ color, focused }) => (
-            <Text style={{ 
-              color, 
-              fontSize: focused ? 20 : 18,
-              transform: [{ scale: focused ? 1.1 : 1 }]
-            }}>🏠</Text>
+            <Ionicons
+              name={focused ? 'home' : 'home-outline'}
+              size={focused ? 24 : 22}
+              color={color}
+            />
           ),
           tabBarLabel: 'Home',
         }}
       />
+
       <Tabs.Screen
         name="orders"
         options={{
           title: 'My Orders',
-          headerStyle: {
-            backgroundColor: '#8A2BE2',
-          },
-          headerTintColor: '#fff',
           tabBarIcon: ({ color, focused }) => (
-            <Text style={{ 
-              color, 
-              fontSize: focused ? 20 : 18,
-              transform: [{ scale: focused ? 1.1 : 1 }]
-            }}>🛒</Text>
+            <Ionicons
+              name={focused ? 'cart' : 'cart-outline'}
+              size={focused ? 24 : 22}
+              color={color}
+            />
           ),
         }}
       />
     </Tabs>
-  )
-}
+  );
+};
 
-export default _layout
+export default _layout;
