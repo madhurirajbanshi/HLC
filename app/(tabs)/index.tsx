@@ -1,26 +1,25 @@
+import useFetch from "@/hooks/useFetch";
+import { getProducts } from "@/services/productService";
 import { router } from "expo-router";
-import { Text, TouchableOpacity, View, Image, StatusBar, FlatList } from "react-native";
+import { FlatList, Image, StatusBar, Text, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { products } from "../data/products";
 
 export default function Index() {
-  if (!products || !Array.isArray(products)) {
-    return (
-      <SafeAreaView className="flex-1 justify-center items-center bg-white">
-        <Text>Products not loaded. Check import path.</Text>
-        <Text>Products: {JSON.stringify(products)}</Text>
-      </SafeAreaView>
-    );
-  }
 
-  const renderItem = ({ item }) => (
+  const { data: products, loading, error, refetch } = useFetch<Product[]>(getProducts);
+
+  if (loading) return <Text className="text-center mt-4">Loading...</Text>;
+  if (error) return <Text className="text-red-500 text-center mt-4">{error.message}</Text>;
+  
+
+  const renderItem = ({ item }: {item: Product}) => (
     <TouchableOpacity
       onPress={() => router.push(`/product/${item.id}`)}
       className="bg-white m-2 p-2 rounded-xl shadow-md flex-1"
-      style={{ maxWidth: '31%' }} // Ensures 3 items per row with spacing
+      style={{ maxWidth: '49%' }} // Ensures 3 items per row with spacing
     >
       <Image
-        source={item.image}
+        source={{ uri: `https://github.com/bpcancode/ulc-images/blob/main/${item.image}?raw=true` }}
         style={{ width: "100%", height: 100, marginBottom: 10 }}
         resizeMode="contain"
       />
@@ -28,7 +27,7 @@ export default function Index() {
         {item.name}
       </Text>
       <Text className="text-sm text-red-600 mb-2 text-center">
-        ₹{item.price.toLocaleString()}
+        ₹ {item.price.toLocaleString()}
       </Text>
       <Text className="bg-electric text-white text-sm px-2 py-1 rounded text-center">
         View Details
@@ -43,7 +42,7 @@ export default function Index() {
         data={products}
         renderItem={renderItem}
         keyExtractor={(item) => item.id.toString()}
-        numColumns={3}
+        numColumns={2}
         contentContainerStyle={{ padding: 10, justifyContent: "center" }}
       />
     </SafeAreaView>

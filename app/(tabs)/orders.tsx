@@ -3,7 +3,7 @@ import { Text, View } from 'react-native'
 
 const Orders = () => {
   return (
-    <View>
+    <View className='flex-1 items-center justify-center'>
       <Text>Orders</Text>
     </View>
   )

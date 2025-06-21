@@ -1,7 +1,7 @@
+import { Ionicons } from '@expo/vector-icons'; // Ionicons from Expo
 import { Tabs } from 'expo-router';
 import React from 'react';
-import { Text, Image } from 'react-native';
-import { Ionicons } from '@expo/vector-icons'; // Ionicons from Expo
+import { Image } from 'react-native';
 
 const logo = require("../../assets/images/crousel_one.png");
 
@@ -31,7 +31,7 @@ const _layout = () => {
               style={{ width: 120, height: 40, resizeMode: 'contain', marginLeft: 10 }}
             />
           ),
-          headerTitle: '',  // Hide title since logo and search icon are enough
+          headerTitle: '', 
           headerRight: () => (
             <Ionicons
               name="search"
@@ -41,8 +41,7 @@ const _layout = () => {
             />
           ),
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons
-              name={focused ? 'home' : 'home-outline'}
+            <Ionicons name={focused ? 'home' : 'home-outline'} 
               size={focused ? 24 : 22}
               color={color}
             />

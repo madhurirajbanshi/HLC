@@ -1,31 +1,24 @@
-import { useLocalSearchParams, router } from "expo-router";
-import { 
-  View, 
-  Text, 
-  ScrollView, 
-  Image, 
+import useFetch from "@/hooks/useFetch";
+import { getProductById } from "@/services/productService";
+import { router, useLocalSearchParams } from "expo-router";
+import {
+  Image,
+  ScrollView,
+  Text,
   TouchableOpacity,
-  Dimensions 
+  View
 } from "react-native";
-import { useState, useEffect } from "react";
-import { products } from '../data/products';
 
-const { width } = Dimensions.get('window');
 
 export default function ProductDetails() {
   const { id } = useLocalSearchParams();
-  const [product, setProduct] = useState(null);
+  const { data: product, loading, error } = useFetch(() => getProductById(id as string));
 
-  useEffect(() => {
-    const foundProduct = products.find(p => p.id === parseInt(id));
-    setProduct(foundProduct);
-  }, [id]);
-
-  const formatPrice = (price) => {
+  const formatPrice = (price: number) => {
     return `₹${price.toLocaleString()}`;
   };
 
-  const parseHtmlToText = (html) => {
+  const parseHtmlToText = (html: string) => {
     // Simple HTML to text conversion for React Native
     let text = html.replace(/<ul>/g, '');
     text = text.replace(/<\/ul>/g, '');
@@ -43,6 +36,10 @@ export default function ProductDetails() {
     text = text.replace(/&reg;/g, '®');
     return text.trim();
   };
+
+  if (loading) return <Text>Loading...</Text>;
+  if (error) return <Text>Error: {error.message}</Text>;
+  // if (!product) return <Text>Product not found.</Text>;
 
   if (!product) {
     return (
@@ -77,7 +74,7 @@ export default function ProductDetails() {
       <View className="bg-white m-4 rounded-xl p-4 shadow-sm">
         <View className="h-64 bg-gray-50 rounded-lg overflow-hidden">
           <Image 
-            source={{ uri: `../../assets/images/${product.image}` }}
+            source={{ uri: `https://github.com/bpcancode/ulc-images/blob/main/${product.image}?raw=true` }}
             className="w-full h-full"
             resizeMode="contain"
           />

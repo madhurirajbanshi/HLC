@@ -9,7 +9,7 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        electric: "#8000FF", // 💜 your custom color
+        electric: "#8000FF",
       },
     },
   },
