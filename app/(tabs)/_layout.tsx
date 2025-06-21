@@ -7,7 +7,21 @@ const logo = require("../../assets/images/crousel_one.png");
 
 const _layout = () => {
   return (
-    <Tabs>
+    <Tabs
+      screenOptions={{
+        tabBarActiveTintColor: '#8A2BE2',
+        tabBarInactiveTintColor: '#666',
+        tabBarStyle: {
+          backgroundColor: '#fff',
+          borderTopColor: '#8A2BE2',
+          borderTopWidth: 2,
+        },
+        headerStyle: {
+          backgroundColor: '#8A2BE2',
+        },
+        headerTintColor: '#fff',
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{
@@ -17,21 +31,30 @@ const _layout = () => {
               style={{ width: 120, height: 40, resizeMode: 'contain' }}
             />
           ),
-          headerStyle: {
-            backgroundColor: '#8000FF',
-          },
-          headerTintColor: '#fff',
-          tabBarIcon: ({ color }) => (
-            <Text style={{ color }}>🏠</Text>
+          tabBarIcon: ({ color, focused }) => (
+            <Text style={{ 
+              color, 
+              fontSize: focused ? 20 : 18,
+              transform: [{ scale: focused ? 1.1 : 1 }]
+            }}>🏠</Text>
           ),
+          tabBarLabel: 'Home',
         }}
       />
       <Tabs.Screen
         name="orders"
         options={{
           title: 'My Orders',
-          tabBarIcon: ({ color }) => (
-            <Text style={{ color }}>🛒</Text>
+          headerStyle: {
+            backgroundColor: '#8A2BE2',
+          },
+          headerTintColor: '#fff',
+          tabBarIcon: ({ color, focused }) => (
+            <Text style={{ 
+              color, 
+              fontSize: focused ? 20 : 18,
+              transform: [{ scale: focused ? 1.1 : 1 }]
+            }}>🛒</Text>
           ),
         }}
       />
