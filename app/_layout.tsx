@@ -7,7 +7,7 @@ export default function RootLayout() {
         options={{headerShown: false}}
       />
       <Stack.Screen
-        name="proudct/[id]"
+        name="product/[id]"
         options={{headerShown: false}}
       />
     </Stack>;
