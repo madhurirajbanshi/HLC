@@ -44,7 +44,7 @@ const _layout = () => {
                 borderRadius: 20,
                 paddingHorizontal: 12,
                 height: 36,
-                marginRight: 0,  // reduced from 15 to 0 to move left
+                marginRight: 0,  
                 backgroundColor: "transparent",
                 width: 280,
               }}
@@ -79,7 +79,7 @@ const _layout = () => {
       <Tabs.Screen
         name="orders"
         options={{
-          title: "My Orders",
+          headerShown: false,
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
               name={focused ? "cart" : "cart-outline"}

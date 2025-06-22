@@ -1,6 +1,9 @@
+import React, { useState } from "react";
 import useFetch from "@/hooks/useFetch";
 import { getProductById } from "@/services/productService";
 import { router, useLocalSearchParams } from "expo-router";
+import Toast from "react-native-toast-message";
+
 import {
   Image,
   ScrollView,
@@ -8,6 +11,7 @@ import {
   TouchableOpacity,
   View,
   useWindowDimensions,
+  Modal,
 } from "react-native";
 import RenderHtml from "react-native-render-html";
 import { Ionicons } from "@expo/vector-icons";
@@ -20,6 +24,9 @@ export default function ProductDetails() {
 
   const { width } = useWindowDimensions();
 
+  const [showBuyNowModal, setShowBuyNowModal] = useState(false);
+  const [quantity, setQuantity] = useState(1);
+
   const formatPrice = (price: number) => {
     return `Rs.${price.toLocaleString()}`;
   };
@@ -27,12 +34,64 @@ export default function ProductDetails() {
   const handleAddToCart = () => {
     if (product) {
       console.log("Added to cart:", product.name);
+      Toast.show({
+        type: "success",
+        text1: "Added to cart successfully!",
+        position: "top",
+        visibilityTime: 2000,
+      });
     }
   };
 
   const handleBuyNow = () => {
     if (product) {
-      console.log("Buy now:", product.name);
+      setShowBuyNowModal(true);
+    }
+  };
+
+  const handleConfirmPurchase = () => {
+    if (product) {
+      // Create order data
+      const orderData = {
+        id: Date.now(), // Generate unique ID
+        orderNumber: `ORD-${Date.now()}`,
+        date: new Date().toISOString().split('T')[0],
+        status: 'Processing',
+        total: product.price * quantity,
+        items: [
+          {
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            quantity: quantity,
+            image: product.image
+          }
+        ]
+      };
+
+      console.log(`Buying ${quantity} of ${product.name}`);
+      setShowBuyNowModal(false);
+      
+      Toast.show({
+        type: "success",
+        text1: `Order placed successfully!`,
+        text2: `${quantity} x ${product.name}`,
+        position: "top",
+        visibilityTime: 3000,
+      });
+
+      // Navigate to orders page with the new order data
+      router.push({
+        pathname: "/orders",
+        params: { 
+          name: product.name,
+          quantity: quantity.toString(),
+          price: product.price.toString(),
+          image: product.image,
+          justOrdered: 'true'
+        }
+      });
+      
     }
   };
 
@@ -43,7 +102,7 @@ export default function ProductDetails() {
       </View>
     );
   }
-  
+
   if (error) {
     return (
       <View className="flex-1 justify-center items-center bg-gray-50">
@@ -79,7 +138,6 @@ export default function ProductDetails() {
           <TouchableOpacity className="mb-2" onPress={() => router.back()}>
             <Text className="text-blue-600 font-medium">← Back</Text>
           </TouchableOpacity>
-          
         </View>
 
         <View className="bg-white mx-4 mt-4 rounded-2xl overflow-hidden shadow-sm">
@@ -92,7 +150,7 @@ export default function ProductDetails() {
               resizeMode="contain"
             />
           </View>
-          <Text className="text-xl font-bold text-gray-900" numberOfLines={2}>
+          <Text className="text-xl font-bold text-gray-900 p-4" numberOfLines={2}>
             {product.name}
           </Text>
         </View>
@@ -119,12 +177,17 @@ export default function ProductDetails() {
           <Text className="text-lg font-bold text-gray-900 mb-4">
             Product Details
           </Text>
-          <RenderHtml 
-            contentWidth={width - 64} 
+          <RenderHtml
+            contentWidth={width - 64}
             source={{ html: product.details }}
             tagsStyles={{
-              p: { color: '#374151', fontSize: 14, lineHeight: 20, marginBottom: 8 },
-              li: { color: '#374151', fontSize: 14, lineHeight: 20 },
+              p: {
+                color: "#374151",
+                fontSize: 14,
+                lineHeight: 20,
+                marginBottom: 8,
+              },
+              li: { color: "#374151", fontSize: 14, lineHeight: 20 },
               ul: { paddingLeft: 16 },
             }}
           />
@@ -133,10 +196,81 @@ export default function ProductDetails() {
         <View className="h-24" />
       </ScrollView>
 
-      <View className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-4 py-3 shadow-lg">
+      <Modal
+        visible={showBuyNowModal}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowBuyNowModal(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/50">
+          <View className="bg-white w-11/12 p-5 rounded-2xl shadow-lg">
+            <Image
+              source={{
+                uri: `https://github.com/bpcancode/ulc-images/blob/main/${product.image}?raw=true`,
+              }}
+              className="w-full h-40 mb-2 rounded-xl"
+              resizeMode="contain"
+            />
+
+            <Text
+              className="text-center text-base font-semibold text-gray-900 mb-4"
+              numberOfLines={2}
+            >
+              {product.name}
+            </Text>
+
+            <View className="flex-row items-center justify-between mb-4">
+              <Text className="text-sm font-medium text-gray-700">Quantity:</Text>
+
+              <View className="flex-row items-center space-x-4">
+                <TouchableOpacity
+                  onPress={() => setQuantity((prev) => Math.max(1, prev - 1))}
+                  className="bg-gray-200 w-8 h-8 items-center justify-center rounded"
+                >
+                  <Text className="text-xl text-gray-700">−</Text>
+                </TouchableOpacity>
+
+                <Text className="text-lg font-semibold w-6 text-center">{quantity}</Text>
+
+                <TouchableOpacity
+                  onPress={() => setQuantity((prev) => prev + 1)}
+                  className="bg-gray-200 w-8 h-8 items-center justify-center rounded"
+                >
+                  <Text className="text-xl text-gray-700">+</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            {/* Show total price */}
+            <View className="bg-gray-50 p-3 rounded-lg mb-4">
+              <Text className="text-center text-lg font-bold text-gray-900">
+                Total: {formatPrice(product.price * quantity)}
+              </Text>
+            </View>
+
+            <TouchableOpacity
+              className="bg-electric px-6 py-3 rounded-lg self-center"
+              onPress={handleConfirmPurchase}
+            >
+              <Text className="text-white font-semibold text-base text-center">
+                Confirm Purchase
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              className="mt-3 self-center"
+              onPress={() => setShowBuyNowModal(false)}
+            >
+              <Text className="text-center text-red-500 font-medium">Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      <View className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-4 pb-8 pt-3 shadow-lg">
         <View className="flex-row gap-3">
-          <TouchableOpacity 
-            className="flex-1 bg-gray-100 py-4 rounded-xl flex-row items-center justify-center mb-20"
+          <TouchableOpacity
+            className="flex-1 bg-gray-100 py-4 rounded-xl flex-row items-center justify-center"
             onPress={handleAddToCart}
           >
             <Ionicons name="cart-outline" size={20} color="#374151" />
@@ -144,9 +278,9 @@ export default function ProductDetails() {
               Add to Cart
             </Text>
           </TouchableOpacity>
-          
-          <TouchableOpacity 
-            className="flex-1 bg-blue-600 py-4 rounded-xl flex-row items-center justify-center mb-20"
+
+          <TouchableOpacity
+            className="flex-1 bg-electric py-4 rounded-xl flex-row items-center justify-center"
             onPress={handleBuyNow}
           >
             <Ionicons name="flash" size={20} color="white" />
