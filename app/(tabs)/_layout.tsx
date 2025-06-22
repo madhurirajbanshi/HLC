@@ -44,7 +44,7 @@ const _layout = () => {
                 borderRadius: 20,
                 paddingHorizontal: 12,
                 height: 36,
-                marginRight: 0,  
+                marginRight: 0,
                 backgroundColor: "transparent",
                 width: 280,
               }}
@@ -63,8 +63,6 @@ const _layout = () => {
               <Ionicons name="search" size={20} color="#fff" style={{ marginLeft: 17 }} />
             </View>
           ),
-          
-          
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
               name={focused ? "home" : "home-outline"}
@@ -82,11 +80,27 @@ const _layout = () => {
           headerShown: false,
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
+              name={focused ? "list" : "list-outline"}
+              size={focused ? 24 : 22}
+              color={color}
+            />
+          ),
+          tabBarLabel: "Orders",
+        }}
+      />
+
+      <Tabs.Screen
+        name="cart"
+        options={{
+          headerShown: false,
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons
               name={focused ? "cart" : "cart-outline"}
               size={focused ? 24 : 22}
               color={color}
             />
           ),
+          tabBarLabel: "Cart",
         }}
       />
     </Tabs>

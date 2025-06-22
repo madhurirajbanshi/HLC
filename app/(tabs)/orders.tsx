@@ -211,25 +211,31 @@ const Orders: React.FC = () => {
             keyExtractor={(item: Order) => item.id.toString()}
             contentContainerStyle={{ paddingBottom: 100 }}
           />
+<View style={{ padding: 16, flexDirection: 'row', justifyContent: 'space-between', gap: 12 }}>
+  <TouchableOpacity
+    style={{ backgroundColor: '#6B7280', paddingVertical: 12, paddingHorizontal: 16, borderRadius: 8 }}
+    onPress={() => router.push('/signup')}
+  >
+    <Text style={{ color: 'white', fontWeight: '600' }}>Signup</Text>
+  </TouchableOpacity>
 
-          {/* Place Order Button */}
-          <View style={{ padding: 16 }}>
-            <TouchableOpacity
-              style={{ backgroundColor: '#8B5CF6', paddingVertical: 14, borderRadius: 8 }}
-              onPress={() => {
-                Toast.show({
-                  type: 'success',
-                  text1: 'Your order has been placed!',
-                  text2: `We'll deliver it to ${userInfo.address}, ${userInfo.city}`,
-                });
-                router.push('/');
-              }}
-            >
-              <Text style={{ color: '#fff', textAlign: 'center', fontWeight: '600' }}>
-                Place Order
-              </Text>
-            </TouchableOpacity>
-          </View>
+  <TouchableOpacity
+    style={{ backgroundColor: '#8B5CF6', flex: 1, paddingVertical: 12, borderRadius: 8 }}
+    onPress={() => {
+      Toast.show({
+        type: 'success',
+        text1: 'Your order has been placed!',
+        text2: `We'll deliver it to ${userInfo.address}, ${userInfo.city}`,
+      });
+      router.push('/');
+    }}
+  >
+    <Text style={{ color: '#fff', textAlign: 'center', fontWeight: '600' }}>
+      Place Order
+    </Text>
+  </TouchableOpacity>
+</View>
+
         </>
       )}
     </SafeAreaView>

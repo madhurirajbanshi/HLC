@@ -16,7 +16,7 @@ export default function Index() {
     <TouchableOpacity
       onPress={() => router.push(`/product/${item.id}`)}
       className="bg-white m-2 p-2 rounded-xl shadow-md flex-1"
-      style={{ maxWidth: '49%' }} // Ensures 3 items per row with spacing
+      style={{ maxWidth: '49%' }} 
     >
       <Image
         source={{ uri: `https://github.com/bpcancode/ulc-images/blob/main/${item.image}?raw=true` }}
@@ -27,7 +27,7 @@ export default function Index() {
         {item.name}
       </Text>
       <Text className="text-sm text-red-600 mb-2 text-center">
-        ₹ {item.price.toLocaleString()}
+        Rs. {item.price.toLocaleString()}
       </Text>
       <Text className="bg-electric text-white text-sm px-2 py-1 rounded text-center">
         View Details

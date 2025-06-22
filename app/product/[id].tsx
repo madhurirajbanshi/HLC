@@ -1,5 +1,7 @@
+// Update your ProductDetails component
 import React, { useState } from "react";
 import useFetch from "@/hooks/useFetch";
+import { useCart } from "@/hooks/useCart"; // Add this import
 import { getProductById } from "@/services/productService";
 import { router, useLocalSearchParams } from "expo-router";
 import Toast from "react-native-toast-message";
@@ -22,6 +24,9 @@ export default function ProductDetails() {
     getProductById(id as string)
   );
 
+  // Add cart functionality
+  const { addToCart, isInCart } = useCart();
+
   const { width } = useWindowDimensions();
 
   const [showBuyNowModal, setShowBuyNowModal] = useState(false);
@@ -33,10 +38,17 @@ export default function ProductDetails() {
 
   const handleAddToCart = () => {
     if (product) {
-      console.log("Added to cart:", product.name);
+      addToCart({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.image
+      }, 1);
+
       Toast.show({
         type: "success",
         text1: "Added to cart successfully!",
+        text2: product.name,
         position: "top",
         visibilityTime: 2000,
       });
@@ -270,12 +282,20 @@ export default function ProductDetails() {
       <View className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-4 pb-8 pt-3 shadow-lg">
         <View className="flex-row gap-3">
           <TouchableOpacity
-            className="flex-1 bg-gray-100 py-4 rounded-xl flex-row items-center justify-center"
+            className={`flex-1 py-4 rounded-xl flex-row items-center justify-center ${
+              isInCart(product.id) ? 'bg-green-100' : 'bg-gray-100'
+            }`}
             onPress={handleAddToCart}
           >
-            <Ionicons name="cart-outline" size={20} color="#374151" />
-            <Text className="text-gray-700 font-semibold text-base ml-2 ">
-              Add to Cart
+            <Ionicons 
+              name={isInCart(product.id) ? "checkmark-circle" : "cart-outline"} 
+              size={20} 
+              color={isInCart(product.id) ? "#22c55e" : "#374151"} 
+            />
+            <Text className={`font-semibold text-base ml-2 ${
+              isInCart(product.id) ? 'text-green-700' : 'text-gray-700'
+            }`}>
+              {isInCart(product.id) ? 'Added to Cart' : 'Add to Cart'}
             </Text>
           </TouchableOpacity>
 
