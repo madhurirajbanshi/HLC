@@ -48,7 +48,9 @@ const getStatusStyle = (status: string) => {
 };
 
 const Orders: React.FC = () => {
-  const { name, price, quantity, image, justOrdered } = useLocalSearchParams();
+  const { items, justOrdered } = useLocalSearchParams();
+  const parsedItems: OrderItem[] = items ? JSON.parse(items as string) : [];
+
   const [orders, setOrders] = useState<Order[]>([]);
   const [showNewOrderAlert, setShowNewOrderAlert] = useState(false);
   const [userInfo, setUserInfo] = useState({
@@ -59,27 +61,19 @@ const Orders: React.FC = () => {
   });
 
   useEffect(() => {
-    if (
-      justOrdered === 'true' &&
-      name && price && quantity && image
-    ) {
-      const parsedPrice = parseInt(price as string, 10);
-      const parsedQuantity = parseInt(quantity as string, 10);
-      if (isNaN(parsedPrice) || isNaN(parsedQuantity)) return;
+    if (justOrdered === 'true' && parsedItems.length > 0) {
+      const totalAmount = parsedItems.reduce(
+        (sum, item) => sum + item.price * item.quantity,
+        0
+      );
 
       const newOrder: Order = {
         id: Date.now(),
         orderNumber: `ORD-${Date.now()}`,
         date: new Date().toISOString().split('T')[0],
         status: 'Processing',
-        total: parsedPrice * parsedQuantity,
-        items: [{
-          id: Date.now(),
-          name: name as string,
-          price: parsedPrice,
-          quantity: parsedQuantity,
-          image: image as string,
-        }],
+        total: totalAmount,
+        items: parsedItems,
       };
 
       setOrders([newOrder]);
@@ -95,7 +89,7 @@ const Orders: React.FC = () => {
 
       setTimeout(() => setShowNewOrderAlert(false), 5000);
     }
-  }, [name, price, quantity, image, justOrdered]);
+  }, [items, justOrdered]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -107,8 +101,12 @@ const Orders: React.FC = () => {
         <Text style={styles.headerTitle}>Checkout</Text>
       </View>
 
-      {/* Address Form */}
+      {/* Delivery Info Form */}
       <View style={{ paddingHorizontal: 16, marginBottom: 12 }}>
+        <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 8 }}>
+          Delivery Information
+        </Text>
+
         <Text style={styles.formLabel}>Full Name</Text>
         <TextInput
           style={styles.input}
@@ -140,7 +138,20 @@ const Orders: React.FC = () => {
         />
       </View>
 
-      {/* Order list or empty state */}
+      {userInfo.name && (
+        <View style={{ paddingHorizontal: 16, marginBottom: 12 }}>
+          <View style={{
+            backgroundColor: '#F3F4F6',
+            padding: 12,
+            borderRadius: 8,
+          }}>
+            <Text style={{ fontWeight: '600', marginBottom: 4 }}>Deliver To:</Text>
+            <Text>{userInfo.name}, {userInfo.phone}</Text>
+            <Text>{userInfo.address}, {userInfo.city}</Text>
+          </View>
+        </View>
+      )}
+
       {orders.length === 0 ? (
         <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
           <View style={styles.emptyContainer}>
@@ -211,31 +222,42 @@ const Orders: React.FC = () => {
             keyExtractor={(item: Order) => item.id.toString()}
             contentContainerStyle={{ paddingBottom: 100 }}
           />
-<View style={{ padding: 16, flexDirection: 'row', justifyContent: 'space-between', gap: 12 }}>
-  <TouchableOpacity
-    style={{ backgroundColor: '#6B7280', paddingVertical: 12, paddingHorizontal: 16, borderRadius: 8 }}
-    onPress={() => router.push('/signup')}
-  >
-    <Text style={{ color: 'white', fontWeight: '600' }}>Signup</Text>
-  </TouchableOpacity>
 
-  <TouchableOpacity
-    style={{ backgroundColor: '#8B5CF6', flex: 1, paddingVertical: 12, borderRadius: 8 }}
-    onPress={() => {
-      Toast.show({
-        type: 'success',
-        text1: 'Your order has been placed!',
-        text2: `We'll deliver it to ${userInfo.address}, ${userInfo.city}`,
-      });
-      router.push('/');
-    }}
-  >
-    <Text style={{ color: '#fff', textAlign: 'center', fontWeight: '600' }}>
-      Place Order
-    </Text>
-  </TouchableOpacity>
-</View>
+          <View style={{ padding: 16, flexDirection: 'row', justifyContent: 'space-between', gap: 12 }}>
+            <TouchableOpacity
+              style={{ backgroundColor: '#6B7280', paddingVertical: 12, paddingHorizontal: 16, borderRadius: 8 }}
+              onPress={() => router.push('/signup')}
+            >
+              <Text style={{ color: 'white', fontWeight: '600' }}>Signup</Text>
+            </TouchableOpacity>
 
+            <TouchableOpacity
+              style={{ backgroundColor: '#8B5CF6', flex: 1, paddingVertical: 12, borderRadius: 8 }}
+              onPress={() => {
+                const { name, phone, address, city } = userInfo;
+                if (!name || !phone || !address || !city) {
+                  Toast.show({
+                    type: 'error',
+                    text1: 'Missing Delivery Info',
+                    text2: 'Please fill out all the delivery fields.',
+                  });
+                  return;
+                }
+
+                Toast.show({
+                  type: 'success',
+                  text1: 'Your order has been placed!',
+                  text2: `We'll deliver it to ${address}, ${city}`,
+                });
+
+                router.push('/');
+              }}
+            >
+              <Text style={{ color: '#fff', textAlign: 'center', fontWeight: '600' }}>
+                Place Order
+              </Text>
+            </TouchableOpacity>
+          </View>
         </>
       )}
     </SafeAreaView>

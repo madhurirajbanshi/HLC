@@ -1,5 +1,7 @@
 // hooks/useCart.ts
-import { useState, useEffect } from 'react';
+import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export interface CartItem {
   id: string;
@@ -9,115 +11,101 @@ export interface CartItem {
   quantity: number;
 }
 
-// Since we can't use AsyncStorage in web environment, we'll use localStorage
-const CART_STORAGE_KEY = 'cart_items';
+interface CartState {
+  cartItems: CartItem[];
+  loading: boolean;
+  addToCart: (product: Omit<CartItem, 'quantity'>, quantity?: number) => void;
+  removeFromCart: (productId: string) => void;
+  updateQuantity: (productId: string, quantity: number) => void;
+  clearCart: () => void;
+  getCartTotal: () => number;
+  getCartItemCount: () => number;
+  isInCart: (productId: string) => boolean;
+  setLoading: (loading: boolean) => void;
+}
 
-export const useCart = () => {
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [loading, setLoading] = useState(true);
+export const useCart = create<CartState>()(
+  persist(
+    (set, get) => ({
+      cartItems: [],
+      loading: true,
 
-  // Load cart from storage on app start
-  useEffect(() => {
-    loadCart();
-  }, []);
+      addToCart: (product, quantity = 1) => {
+        set((state) => {
+          const existingItem = state.cartItems.find(item => item.id === product.id);
+          
+          if (existingItem) {
+            // If item already exists, update quantity
+            return {
+              cartItems: state.cartItems.map(item =>
+                item.id === product.id
+                  ? { ...item, quantity: item.quantity + quantity }
+                  : item
+              )
+            };
+          } else {
+            // Add new item
+            return {
+              cartItems: [...state.cartItems, { ...product, quantity }]
+            };
+          }
+        });
+      },
 
-  // Save cart to storage whenever cartItems changes
-  useEffect(() => {
-    if (!loading) {
-      saveCart();
-    }
-  }, [cartItems, loading]);
+      removeFromCart: (productId) => {
+        set((state) => ({
+          cartItems: state.cartItems.filter(item => item.id !== productId)
+        }));
+      },
 
-  const loadCart = () => {
-    try {
-      // For web environment, use localStorage
-      if (typeof window !== 'undefined') {
-        const cartData = localStorage.getItem(CART_STORAGE_KEY);
-        if (cartData) {
-          setCartItems(JSON.parse(cartData));
+      updateQuantity: (productId, quantity) => {
+        if (quantity <= 0) {
+          get().removeFromCart(productId);
+          return;
         }
-      }
-    } catch (error) {
-      console.error('Error loading cart:', error);
-    } finally {
-      setLoading(false);
+
+        set((state) => ({
+          cartItems: state.cartItems.map(item =>
+            item.id === productId ? { ...item, quantity } : item
+          )
+        }));
+      },
+
+      clearCart: () => {
+        set({ cartItems: [] });
+      },
+
+      getCartTotal: () => {
+        const { cartItems } = get();
+        return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+      },
+
+      getCartItemCount: () => {
+        const { cartItems } = get();
+        return cartItems.reduce((count, item) => count + item.quantity, 0);
+      },
+
+      isInCart: (productId) => {
+        const { cartItems } = get();
+        return cartItems.some(item => item.id === productId);
+      },
+
+      setLoading: (loading) => {
+        set({ loading });
+      },
+    }),
+    {
+      name: 'cart-storage', // unique name for storage
+      storage: createJSONStorage(() => AsyncStorage), // Use AsyncStorage for React Native
+      onRehydrateStorage: () => (state) => {
+        // Set loading to false when rehydration is complete
+        if (state) {
+          state.setLoading(false);
+        }
+      },
     }
-  };
-
-  const saveCart = () => {
-    try {
-      // For web environment, use localStorage
-      if (typeof window !== 'undefined') {
-        localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cartItems));
-      }
-    } catch (error) {
-      console.error('Error saving cart:', error);
-    }
-  };
-
-  const addToCart = (product: Omit<CartItem, 'quantity'>, quantity: number = 1) => {
-    setCartItems(prevItems => {
-      const existingItem = prevItems.find(item => item.id === product.id);
-      
-      if (existingItem) {
-        // If item already exists, update quantity
-        return prevItems.map(item =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity + quantity }
-            : item
-        );
-      } else {
-        // Add new item
-        return [...prevItems, { ...product, quantity }];
-      }
-    });
-  };
-
-  const removeFromCart = (productId: string) => {
-    setCartItems(prevItems => prevItems.filter(item => item.id !== productId));
-  };
-
-  const updateQuantity = (productId: string, quantity: number) => {
-    if (quantity <= 0) {
-      removeFromCart(productId);
-      return;
-    }
-
-    setCartItems(prevItems =>
-      prevItems.map(item =>
-        item.id === productId ? { ...item, quantity } : item
-      )
-    );
-  };
-
-  const clearCart = () => {
-    setCartItems([]);
-  };
-
-  const getCartTotal = () => {
-    return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
-  };
-
-  const getCartItemCount = () => {
-    return cartItems.reduce((count, item) => count + item.quantity, 0);
-  };
-
-  const isInCart = (productId: string) => {
-    return cartItems.some(item => item.id === productId);
-  };
-
-  return {
-    cartItems,
-    loading,
-    addToCart,
-    removeFromCart,
-    updateQuantity,
-    clearCart,
-    getCartTotal,
-    getCartItemCount,
-    isInCart,
-  };
-};
+  )
+);
 
 // Also export as default for different import styles
 export default useCart;

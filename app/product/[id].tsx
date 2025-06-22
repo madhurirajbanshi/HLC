@@ -1,7 +1,7 @@
 // Update your ProductDetails component
 import React, { useState } from "react";
 import useFetch from "@/hooks/useFetch";
-import { useCart } from "@/hooks/useCart"; // Add this import
+import { useCart } from "@/hooks/useCart";
 import { getProductById } from "@/services/productService";
 import { router, useLocalSearchParams } from "expo-router";
 import Toast from "react-native-toast-message";
@@ -24,7 +24,7 @@ export default function ProductDetails() {
     getProductById(id as string)
   );
 
-  // Add cart functionality
+  // Zustand cart hook - much simpler now!
   const { addToCart, isInCart } = useCart();
 
   const { width } = useWindowDimensions();
@@ -103,7 +103,6 @@ export default function ProductDetails() {
           justOrdered: 'true'
         }
       });
-      
     }
   };
 
