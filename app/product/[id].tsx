@@ -92,17 +92,22 @@ export default function ProductDetails() {
         visibilityTime: 3000,
       });
 
-      // Navigate to orders page with the new order data
       router.push({
         pathname: "/orders",
-        params: { 
-          name: product.name,
-          quantity: quantity.toString(),
-          price: product.price.toString(),
-          image: product.image,
+        params: {
+          items: JSON.stringify([
+            {
+              id: product.id,
+              name: product.name,
+              price: product.price,
+              quantity: quantity,
+              image: product.image
+            }
+          ]),
           justOrdered: 'true'
         }
       });
+      
     }
   };
 
