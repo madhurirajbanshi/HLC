@@ -8,7 +8,7 @@ import {
   Alert,
   Pressable,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';  // <-- import SafeAreaView
+import { SafeAreaView } from 'react-native-safe-area-context'; 
 import { Ionicons } from '@expo/vector-icons';
 import { useCart } from '@/hooks/useCart';
 import { router } from 'expo-router';
@@ -181,7 +181,6 @@ export default function Cart() {
               className="bg-white rounded-2xl p-4 mb-4 shadow-sm"
             >
               <View className="flex-row items-center">
-                {/* Checkbox */}
                 <Pressable
                   onPress={() => handleToggleCheck(item.id)}
                   className="w-6 h-6 border border-gray-400 rounded-md items-center justify-center mr-4"
@@ -191,7 +190,6 @@ export default function Cart() {
                   )}
                 </Pressable>
 
-                {/* Product Image */}
                 <Image
                   source={{
                     uri: `https://github.com/bpcancode/ulc-images/blob/main/${item.image}?raw=true`,
@@ -200,7 +198,6 @@ export default function Cart() {
                   resizeMode="contain"
                 />
 
-                {/* Product Details */}
                 <View className="flex-1 ml-4">
                   <Text
                     className="text-lg font-semibold text-gray-900 mb-1"
@@ -212,7 +209,6 @@ export default function Cart() {
                     {formatPrice(item.price)}
                   </Text>
 
-                  {/* Quantity Controls */}
                   <View className="flex-row items-center justify-between">
                     <View className="flex-row items-center">
                       <TouchableOpacity
@@ -248,7 +244,6 @@ export default function Cart() {
                 </View>
               </View>
 
-              {/* Subtotal */}
               <View className="border-t border-gray-100 mt-4 pt-3">
                 <Text className="text-right text-lg  text-gray-900">
                   Subtotal: {formatPrice(item.price * item.quantity)}
@@ -258,14 +253,11 @@ export default function Cart() {
           ))}
         </View>
 
-        {/* Add some bottom padding for the checkout button */}
         <View className="h-32" />
       </ScrollView>
 
-      {/* Checkout Section */}
-      {/* Checkout Section */}
+     
 <View className="bg-white border-t border-gray-100 px-4 py-8 mt-10 flex-row items-center justify-between">
-  {/* Select All Checkbox */}
   <Pressable
     onPress={toggleSelectAll}
     className="flex-row items-center"
@@ -277,7 +269,6 @@ export default function Cart() {
     <Text className="text-lg font-semibold text-gray-900">All</Text>
   </Pressable>
 
-  {/* Subtotal */}
   <Text className="text-lg font-bold text-gray-900">
     Subtotal: {formatPrice(
       cartItems
@@ -286,7 +277,6 @@ export default function Cart() {
     )}
   </Text>
 
-  {/* Checkout Button */}
   <TouchableOpacity
     onPress={handleCheckout}
     className="bg-electric px-5 py-2 rounded-xl flex-row items-center"

@@ -1,4 +1,3 @@
-// Update your ProductDetails component
 import React, { useState } from "react";
 import useFetch from "@/hooks/useFetch";
 import { useCart } from "@/hooks/useCart";
@@ -63,9 +62,8 @@ export default function ProductDetails() {
 
   const handleConfirmPurchase = () => {
     if (product) {
-      // Create order data
       const orderData = {
-        id: Date.now(), // Generate unique ID
+        id: Date.now(),
         orderNumber: `ORD-${Date.now()}`,
         date: new Date().toISOString().split('T')[0],
         status: 'Processing',
@@ -92,17 +90,22 @@ export default function ProductDetails() {
         visibilityTime: 3000,
       });
 
-      // Navigate to orders page with the new order data
       router.push({
         pathname: "/orders",
         params: { 
-          name: product.name,
-          quantity: quantity.toString(),
-          price: product.price.toString(),
-          image: product.image,
+          items: JSON.stringify([
+            {
+              id: product.id,
+              name: product.name,
+              price: product.price,
+              quantity: quantity,
+              image: product.image,
+            }
+          ]),
           justOrdered: 'true'
         }
       });
+      
     }
   };
 

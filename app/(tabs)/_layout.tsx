@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Tabs } from "expo-router";
 import { Image, TextInput, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-
 const logo = require("../../assets/images/crousel_one.png");
 
 const _layout = () => {
@@ -11,6 +10,7 @@ const _layout = () => {
   return (
     <Tabs
       screenOptions={{
+        // headerShown: false,
         tabBarActiveTintColor: "#8A2BE2",
         tabBarInactiveTintColor: "#666",
         tabBarStyle: {
@@ -88,6 +88,7 @@ const _layout = () => {
           tabBarLabel: "Orders",
         }}
       />
+      
 
       <Tabs.Screen
         name="cart"
