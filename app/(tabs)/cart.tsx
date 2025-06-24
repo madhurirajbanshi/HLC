@@ -29,7 +29,7 @@ export default function Cart() {
 
   useEffect(() => {
     const initialChecked = cartItems.reduce((acc, item) => {
-      acc[item.id] = true; // default checked
+      acc[item.id] = true; 
       return acc;
     }, {} as Record<string, boolean>);
     setCheckedItems(initialChecked);
