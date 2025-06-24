@@ -1,4 +1,3 @@
-// Update your ProductDetails component
 import React, { useState } from "react";
 import useFetch from "@/hooks/useFetch";
 import { useCart } from "@/hooks/useCart";
@@ -63,9 +62,8 @@ export default function ProductDetails() {
 
   const handleConfirmPurchase = () => {
     if (product) {
-      // Create order data
       const orderData = {
-        id: Date.now(), // Generate unique ID
+        id: Date.now(),
         orderNumber: `ORD-${Date.now()}`,
         date: new Date().toISOString().split('T')[0],
         status: 'Processing',
@@ -80,10 +78,10 @@ export default function ProductDetails() {
           }
         ]
       };
-
+  
       console.log(`Buying ${quantity} of ${product.name}`);
       setShowBuyNowModal(false);
-      
+  
       Toast.show({
         type: "success",
         text1: `Order placed successfully!`,
@@ -91,7 +89,7 @@ export default function ProductDetails() {
         position: "top",
         visibilityTime: 3000,
       });
-
+  
       router.push({
         pathname: "/orders",
         params: {
@@ -101,15 +99,15 @@ export default function ProductDetails() {
               name: product.name,
               price: product.price,
               quantity: quantity,
-              image: product.image
+              image: product.image,
             }
           ]),
           justOrdered: 'true'
         }
       });
-      
     }
   };
+  
 
   if (loading) {
     return (

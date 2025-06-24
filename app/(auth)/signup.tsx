@@ -4,7 +4,7 @@ import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-nativ
 
 const SignUp = () => {
   return (
-    <View className='flex-1 justify-center items-center bg-electric'>
+    <View className='flex-1 justify-center items-center'>
                 <View className='bg-white p-4 gap-y-2 rounded shadow-lg w-80'>
                     <View className='mb-4 flex items-center'>
                         <Text className='text-lg font-bold'>Register</Text>

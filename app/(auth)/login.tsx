@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FAFAFA', // A softer white for a modern, minimalist background
   },
   title: {
-    fontSize: 28, // A bit larger for a more striking appearance
+    fontSize: 28, 
     fontWeight: '800', // Extra bold for emphasis
     marginBottom: 40, // Increased space for a more airy, open feel
     color: '#1A237E', // A deep indigo for a sophisticated, modern look
