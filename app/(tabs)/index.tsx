@@ -15,7 +15,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 
-
+import NotificationBadge from "@/components/notificationbadge";
 export default function Index() {
   const { data: products, loading, error } = useFetch<Product[]>(getProducts);
   const [search, setSearch] = useState("");
@@ -53,7 +53,7 @@ export default function Index() {
       </Text>
     </TouchableOpacity>
   );
-
+  const unreadNotificationCount = 3;
   return (
     <SafeAreaView className="flex-1 bg-white">
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
@@ -87,8 +87,13 @@ export default function Index() {
              
               </View>
 
-              <TouchableOpacity className="ml-2" onPress={() => router.push('/notification')}>
+              <TouchableOpacity
+  className="ml-2"
+  onPress={() => router.push('/notification')}
+  style={{ position: 'relative' }}  // important for badge positioning
+>
   <Ionicons name="notifications-outline" size={24} color="#555" />
+  <NotificationBadge count={unreadNotificationCount} />
 </TouchableOpacity>
 
             </View>
