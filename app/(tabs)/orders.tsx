@@ -1,22 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { router, useLocalSearchParams } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
+import React, { useEffect, useState } from 'react';
 import {
-  View,
-  Text,
-  ScrollView,
+  Animated,
+  Dimensions,
+  FlatList,
   Image,
+  ScrollView,
+  StyleSheet,
+  Text,
   TextInput,
   TouchableOpacity,
-  FlatList,
-  StyleSheet,
-  Dimensions,
-  Animated,
+  View,
 } from 'react-native';
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { StatusBar } from 'expo-status-bar';
-import { router, useLocalSearchParams } from 'expo-router';
 import Toast from 'react-native-toast-message';
-import { LinearGradient } from 'expo-linear-gradient';
 
 const { width } = Dimensions.get('window');
 
