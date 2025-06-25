@@ -6,6 +6,7 @@ import React, { useState } from "react";
 import {
   FlatList,
   Image,
+  Modal,
   StatusBar,
   Text,
   TextInput,
@@ -15,18 +16,30 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import NotificationBadge from "@/components/notificationbadge";
-import { getAuth } from "firebase/auth";
+import { getAuth, signOut } from "firebase/auth";
+
+import { useUserStore } from "@/store/userStore";
+
+getAuth().onAuthStateChanged((user) => {
+    if (user) {
+    useUserStore.getState().setUser({
+      uid: user.uid,
+      email: user.email ?? '',
+      displayName: user.displayName ?? '',
+    });
+  } else {
+    useUserStore.getState().clearUser();
+  }
+  });
+
 
 export default function Index() {
 
-  getAuth().onAuthStateChanged((user) => {
-    setUser(user);
-  });
-
   const { data: products, loading, error } = useFetch<Product[]>(getProducts);
   const [search, setSearch] = useState("");
-  const [user, setUser] = useState<any | null>(null);
 
+  const user = useUserStore((state) => state.user);
+  const [modalVisible, setModalVisible] = useState(false);
 
   const filteredProducts =
     search.trim().length > 0
@@ -63,7 +76,41 @@ export default function Index() {
   return (
     <SafeAreaView className="flex-1 bg-white">
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
-
+      {/* Profile Modal */}
+      <Modal
+        visible={modalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <TouchableOpacity
+          activeOpacity={1}
+          style={{ flex: 1 }}
+          onPress={() => setModalVisible(false)}
+        >
+          <View style={{ flex: 1 }} pointerEvents="box-none">
+            <TouchableOpacity
+              activeOpacity={1}
+              style={{ position: 'absolute', top: 60, right: 30, backgroundColor: 'white', borderRadius: 12, padding: 16, shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 8, elevation: 5, minWidth: 200 }}
+              onPress={(e) => e.stopPropagation()}
+            >
+              <Text className="text-lg font-semibold text-gray-800 mb-2 text-center">
+                {user?.displayName || user?.email}
+              </Text>
+              <TouchableOpacity
+                className="bg-red-500 rounded px-4 py-2 mt-2"
+                onPress={async () => {
+                  const auth = getAuth();
+                  await signOut(auth);
+                  setModalVisible(false);
+                }}
+              >
+                <Text className="text-white text-center">Logout</Text>
+              </TouchableOpacity>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
       {loading ? (
         <Text className="text-center mt-4">Loading...</Text>
       ) : error ? (
@@ -91,7 +138,7 @@ export default function Index() {
                       </Text>
                     </View>
                     
-                    <TouchableOpacity >
+                    <TouchableOpacity onPress={() => setModalVisible(true)}>
                       <Ionicons name="person-circle-outline" size={48} color="#8000FF" />
                     </TouchableOpacity>
                   </View>
@@ -100,16 +147,19 @@ export default function Index() {
                   <View className="flex-row m-2 items-center justify-between">
                     
                     <View>
-
                     <Text className="text-2xl" numberOfLines={2}>Welcome!</Text>
-                    <Text className="text-lg font-semibold text-gray-800">
-                      Anonymous User
-                    </Text>
+                      <Text className="text-lg font-semibold text-gray-800">
+                        Anonymous User
+                      </Text>
                     </View>
-                    
+
                     <TouchableOpacity onPress={() => router.push('/login')}
-                    className="ml-2" >
-                    <Ionicons name="log-in-outline" size={24} color="#555" />
+                      className="ml-2" >
+                        <View>
+                          <Ionicons name="log-in-outline" size={24} color="#8000FF" />
+                        <Text className="text-sm text-electric">Login</Text>
+
+                    </View>
                   </TouchableOpacity>
                   </View>
                   

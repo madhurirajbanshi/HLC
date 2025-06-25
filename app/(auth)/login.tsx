@@ -4,7 +4,9 @@ import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'fire
 import React, { useState } from 'react'
 import { SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity } from 'react-native'
 
+
 const login = () => {
+
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 

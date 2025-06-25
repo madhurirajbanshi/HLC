@@ -1,16 +1,20 @@
+// stores/userStore.ts
+import { create } from 'zustand';
 
-
-interface User {
-    id: string;
-    name: string;
-    email: string;
+interface UserInfo {
+  uid: string;
+  email: string;
+  displayName?: string;
 }
 
-
-interface UserState {
-    user: User | null;
-    loading: boolean;
-    setUser: (user: User | null) => void;
-    clearUser: () => void;
-    isAuthenticated: () => boolean;
+interface UserStore {
+  user: UserInfo | null;
+  setUser: (user: UserInfo) => void;
+  clearUser: () => void;
 }
+
+export const useUserStore = create<UserStore>((set) => ({
+  user: null,
+  setUser: (user) => set({ user }),
+  clearUser: () => set({ user: null }),
+}));
