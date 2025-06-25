@@ -1,22 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import { useUserStore } from "@/store/userStore";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { router, useLocalSearchParams } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
+import React, { useEffect, useState } from 'react';
 import {
-  View,
-  Text,
-  ScrollView,
+  Animated,
+  Dimensions,
+  FlatList,
   Image,
+  ScrollView,
+  StyleSheet,
+  Text,
   TextInput,
   TouchableOpacity,
-  FlatList,
-  StyleSheet,
-  Dimensions,
-  Animated,
+  View,
 } from 'react-native';
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { StatusBar } from 'expo-status-bar';
-import { router, useLocalSearchParams } from 'expo-router';
 import Toast from 'react-native-toast-message';
-import { LinearGradient } from 'expo-linear-gradient';
 
 const { width } = Dimensions.get('window');
 
@@ -41,36 +41,36 @@ interface Order {
 const getStatusConfig = (status: string) => {
   switch (status.toLowerCase()) {
     case 'delivered':
-      return { 
-        backgroundColor: '#ECFDF5', 
+      return {
+        backgroundColor: '#ECFDF5',
         color: '#059669',
         borderColor: '#A7F3D0',
         icon: 'check-circle'
       };
     case 'shipped':
-      return { 
-        backgroundColor: '#EFF6FF', 
+      return {
+        backgroundColor: '#EFF6FF',
         color: '#2563EB',
         borderColor: '#BFDBFE',
         icon: 'local-shipping'
       };
     case 'processing':
-      return { 
-        backgroundColor: '#FFFBEB', 
+      return {
+        backgroundColor: '#FFFBEB',
         color: '#D97706',
         borderColor: '#FDE68A',
         icon: 'hourglass-empty'
       };
     case 'cancelled':
-      return { 
-        backgroundColor: '#FEF2F2', 
+      return {
+        backgroundColor: '#FEF2F2',
         color: '#DC2626',
         borderColor: '#FECACA',
         icon: 'cancel'
       };
     default:
-      return { 
-        backgroundColor: '#F9FAFB', 
+      return {
+        backgroundColor: '#F9FAFB',
         color: '#6B7280',
         borderColor: '#E5E7EB',
         icon: 'pending'
@@ -79,6 +79,8 @@ const getStatusConfig = (status: string) => {
 };
 
 const Orders: React.FC = () => {
+  const user = useUserStore((state) => state.user);
+
   const { items, justOrdered } = useLocalSearchParams();
   const parsedItems: OrderItem[] = items ? JSON.parse(items as string) : [];
 
@@ -136,9 +138,9 @@ const Orders: React.FC = () => {
 
   const renderOrderItem = ({ item, index }: { item: Order; index: number }) => {
     const statusConfig = getStatusConfig(item.status);
-    
+
     return (
-      <Animated.View 
+      <Animated.View
         style={[
           styles.orderCard,
           showNewOrderAlert && index === 0 && justOrdered === 'true' ? styles.newOrderCard : {},
@@ -163,7 +165,7 @@ const Orders: React.FC = () => {
               })}
             </Text>
           </View>
-          
+
           <View style={[styles.statusContainer, { backgroundColor: statusConfig.backgroundColor, borderColor: statusConfig.borderColor }]}>
             <MaterialIcons name={statusConfig.icon as any} size={16} color={statusConfig.color} />
             <Text style={[styles.statusText, { color: statusConfig.color }]}>
@@ -207,7 +209,7 @@ const Orders: React.FC = () => {
             <Text style={styles.totalLabel}>Total Amount</Text>
             <Text style={styles.totalAmount}>₹{item.total.toLocaleString('en-IN')}</Text>
           </View>
-          
+
           <TouchableOpacity style={styles.viewDetailsButton} >
             <Text style={styles.viewDetailsText}>View Details</Text>
             <MaterialIcons name="keyboard-arrow-right" size={20} color="#8B5CF6" />
@@ -217,10 +219,53 @@ const Orders: React.FC = () => {
     );
   };
 
+  const handleConfirmOrder = () => {
+    const { name, phone, address, city } = userInfo;
+
+    if (!user) {
+      Toast.show({
+        type: 'error',
+        text1: 'Not Logged In',
+        text2: 'Please log in to confirm your order',
+        position: 'top',
+      });
+      router.push('/login');
+      return;
+    }
+
+    if (!name || !phone || !address || !city) {
+      Toast.show({
+        type: 'error',
+        text1: 'Missing Information',
+        text2: 'Please fill all required delivery details',
+        position: 'top',
+      });
+      return;
+    }
+
+    const totalAmount = orders[0]?.total || 0; 
+
+    const order = {
+      userId: user.uid,
+      userName: name,
+      userPhone: phone,
+      userAddress: address,
+      userCity: city,
+      order: orders,
+    }
+
+    router.push({
+      pathname: '/(payments)/esewa',
+      params: {
+        price: totalAmount.toString(),
+      },
+    });
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="dark" />
-      
+
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
@@ -286,7 +331,7 @@ const Orders: React.FC = () => {
                   placeholderTextColor="#9CA3AF"
                 />
               </View>
-              
+
               <View style={[styles.inputGroup, { flex: 1, marginLeft: 8 }]}>
                 <Text style={styles.inputLabel}>Landmark</Text>
                 <TextInput
@@ -347,7 +392,7 @@ const Orders: React.FC = () => {
               <MaterialIcons name="receipt-long" size={24} color="#8B5CF6" />
               <Text style={styles.sectionTitle}>Your Orders</Text>
             </View>
-            
+
             <FlatList
               data={orders}
               renderItem={renderOrderItem}
@@ -363,42 +408,17 @@ const Orders: React.FC = () => {
       {orders.length > 0 && (
         <View style={styles.bottomBar}>
           <View style={styles.actionButtons}>
-            <TouchableOpacity
+            {/* <TouchableOpacity
               style={styles.secondaryButton}
               onPress={() => router.push('/signup')}
             >
               <MaterialIcons name="person-add" size={20} color="#6B7280" />
               <Text style={styles.secondaryButtonText}>Sign Up</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
 
             <TouchableOpacity
               style={styles.primaryButton}
-              onPress={() => {
-                const { name, phone, address, city } = userInfo;
-              
-                if (!name || !phone || !address || !city) {
-                  Toast.show({
-                    type: 'error',
-                    text1: 'Missing Information',
-                    text2: 'Please fill all required delivery details',
-                    position: 'top',
-                  });
-                  return;
-                }
-              
-                const totalAmount = orders[0]?.total || 0; // assuming 1 order at a time
-              
-                // Navigate to Esewa screen with total price
-                router.push({
-                  pathname: '/(payments)/esewa',
-                  params: {
-                    price: totalAmount.toString(),
-                  },
-                });
-                
-              }}
-              
-            >
+              onPress={handleConfirmOrder} >
               <MaterialIcons name="check-circle" size={20} color="white" />
               <Text style={styles.primaryButtonText}>Confirm Order</Text>
             </TouchableOpacity>
