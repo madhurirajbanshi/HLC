@@ -34,6 +34,7 @@ type DeliveryOption = {
   duration: string;
 };
 
+
 const Checkout = () => {
   const { cartItems: orderItems, clearCart } = useCart();
 
@@ -44,11 +45,7 @@ const Checkout = () => {
   const [editingAddress, setEditingAddress] = useState<Address | null>(null);
   const [deliveryModalVisible, setDeliveryModalVisible] = useState(false);
   const [addingAddress, setAddingAddress] = useState(false);
-  const [regionModalVisible, setRegionModalVisible] = useState(false);
-  const [selectedProvince, setSelectedProvince] = useState("");
-  const [selectedCity, setSelectedCity] = useState("");
-  const [selectedDistrict, setSelectedDistrict] = useState("");
-  const [currentStep, setCurrentStep] = useState("province"); // province, city, district
+  const [selectedDeliveryOption, setSelectedDeliveryOption] = useState<string>("standard");
   const [newAddress, setNewAddress] = useState({
     name: "",
     street: "",
@@ -62,8 +59,6 @@ const Checkout = () => {
     isDefaultShipping: true,
     isDefaultBilling: true,
   });
-
-  const [selectedDeliveryOption, setSelectedDeliveryOption] = useState<string>("standard");
 
   const deliveryOptions: DeliveryOption[] = [
     {
@@ -88,44 +83,6 @@ const Checkout = () => {
       duration: "1 day"
     }
   ];
-
-  const addressData = {
-    "Bagmati Province": {
-      "Kathmandu": ["Kathmandu Metropolitan", "Budhanilkantha Municipality", "Shankharapur Municipality"],
-      "Bhaktapur": ["Bhaktapur Municipality", "Changunarayan Municipality", "Madhyapur Thimi"],
-      "Lalitpur": ["Lalitpur Metropolitan", "Godawari Municipality", "Mahalaxmi Municipality"]
-    },
-    "Gandaki Province": {
-      "Kaski": ["Pokhara Metropolitan", "Annapurna Rural Municipality", "Machhapuchchhre Rural"],
-      "Syangja": ["Galyang Municipality", "Chapakot Municipality", "Waling Municipality"],
-      "Parbat": ["Kushma Municipality", "Phalewas Municipality", "Jaljala Rural Municipality"]
-    },
-    "Karnali Province": {
-      "Surkhet": ["Birendranagar Municipality", "Bheriganga Municipality", "Gurbhakot Municipality"],
-      "Dailekh": ["Narayan Municipality", "Dullu Municipality", "Aathabis Municipality"],
-      "Jumla": ["Chandannath Municipality", "Kankasundari Rural", "Sinja Rural Municipality"]
-    },
-    "Koshi Province": {
-      "Bhadrapur": ["Bhadrapur Buspark Area", "Campus Mode Area", "Dukhi Tole Area", "Giri Chowk Area", "Kirat Colony Area", "Mechi Hospital Area"],
-      "Arjundhara": ["Central Area", "Market Area", "Residential Area"],
-      "Belbari": ["Main Bazar", "Station Area", "Hospital Area"]
-    },
-    "Lumbini Province": {
-      "Rupandehi": ["Bhairahawa", "Siddharthanagar", "Tilottama"],
-      "Kapilvastu": ["Kapilvastu Municipality", "Banganga Municipality", "Buddhabhumi"],
-      "Nawalpur": ["Kawasoti", "Gaindakot", "Nawalpur"]
-    },
-    "Madhesh Province": {
-      "Janakpur": ["Janakpurdham", "Chhireshwarnath", "Ganeshman Charnath"],
-      "Birgunj": ["Birgunj Metropolitan", "Pokhariya", "Thori"],
-      "Rajbiraj": ["Rajbiraj Municipality", "Kanchanrup", "Agnisair Krishna Savaran"]
-    },
-    "Sudurpashchim Province": {
-      "Kailali": ["Dhangadhi", "Tikapur", "Ghodaghodi"],
-      "Kanchanpur": ["Bhimdatta", "Belauri", "Punarbas"],
-      "Doti": ["Dipayal Silgadhi", "Shikhar", "Purbichauki"]
-    }
-  };
 
   useEffect(() => {
     if (addresses.length > 0 && !selectedAddressId) {
@@ -174,9 +131,6 @@ const Checkout = () => {
     if (
       !newAddress.name ||
       !newAddress.street ||
-      !newAddress.city ||
-      !newAddress.state ||
-      !newAddress.zip ||
       !newAddress.phone ||
       !newAddress.region
     ) {
@@ -215,69 +169,34 @@ const Checkout = () => {
     setDeliveryModalVisible(false);
   };
 
-  const openRegionModal = () => {
-    setCurrentStep("province");
-    setRegionModalVisible(true);
-  };
-
-  const handleProvinceSelect = (province: string) => {
-    setSelectedProvince(province);
-    setSelectedCity("");
-    setSelectedDistrict("");
-    setCurrentStep("city");
-  };
-
-  const handleCitySelect = (city: string) => {
-    setSelectedCity(city);
-    setSelectedDistrict("");
-    setCurrentStep("district");
-  };
-
-  const handleDistrictSelect = (district: string) => {
-    setSelectedDistrict(district);
-    const fullAddress = `${selectedProvince}/${selectedCity}/${district}`;
-    setNewAddress(prev => ({
-      ...prev,
-      region: fullAddress,
-      state: selectedProvince,
-      city: selectedCity,
-      zip: district 
-    }));
-    setRegionModalVisible(false);
-    setSelectedProvince("");
-    setSelectedCity("");
-    setSelectedDistrict("");
-    setCurrentStep("province");
-  };
-
-  const getRegionModalTitle = () => {
-    if (currentStep === "province") return "Select Region";
-    if (currentStep === "city") return "Select City";
-    return "Select district";
-  };
-
-  const getRegionModalData = () => {
-    if (currentStep === "province") {
-      return Object.keys(addressData);
-    }
-    if (currentStep === "city" && selectedProvince) {
-      return Object.keys(addressData[selectedProvince as keyof typeof addressData] || {});
-    }
-    if (currentStep === "district" && selectedProvince && selectedCity) {
-      const provinceData = addressData[selectedProvince as keyof typeof addressData];
-      return provinceData ? provinceData[selectedCity as keyof typeof provinceData] || [] : [];
-    }
-    return [];
-  };
-
   const handlePlaceOrder = () => {
     if (!selectedAddressId) {
       Alert.alert("Address Required", "Please select a shipping address to continue");
       return;
     }
+    // Prepare order data to pass to orders page
+    const orderData = orderItems.map(item => ({
+      id: item.id,
+      name: item.name,
+      price: item.price,
+      quantity: item.quantity,
+      image: item.image
+    }));
     Alert.alert("Success!", "Your order has been placed successfully!");
     clearCart();
-    router.push("/");
+    // Navigate to orders page with the items and order details
+    router.push({
+      pathname: "/orders",
+      params: {
+        items: JSON.stringify(orderData),
+        justOrdered: "true",
+        deliveryOption: selectedDeliveryOption,
+        deliveryFee: getDeliveryFee().toString(),
+        subtotal: getSubtotal().toString(),
+        total: getTotalAmount().toString(),
+        shippingAddress: JSON.stringify(selectedAddress || {})
+      }
+    });
   };
 
   const selectedAddress = addresses.find(a => a.id === selectedAddressId);
@@ -478,12 +397,13 @@ const Checkout = () => {
             <View style={{ width: 24 }} />
           </View>
 
-          <ScrollView className="flex-1 px-4 py-4">
-            <KeyboardAvoidingView
-              behavior={Platform.OS === "ios" ? "padding" : undefined}
-              className="py-2"
-            >
+          <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : undefined}
+            className="flex-1"
+          >
+            <ScrollView className="flex-1 px-4 py-4">
               <View>
+                <View>
                   <Text className="text-sm font-medium text-gray-700 mb-2">
                     Recipient's Name <Text className="text-red-500">*</Text>
                   </Text>
@@ -518,19 +438,18 @@ const Checkout = () => {
                     placeholderTextColor="#9ca3af"
                   />
                 </View>
-              <View className="space-y-4">
+
                 <View>
                   <Text className="text-sm font-medium text-gray-700 mb-2">
-                    Region/City/District <Text className="text-purple-500">*</Text>
+                    Region <Text className="text-purple-500">*</Text>
                   </Text>
-                  <TouchableOpacity
-                    onPress={openRegionModal}
-                    className="border border-gray-300 rounded-lg p-3 bg-white"
-                  >
-                    <Text className={`text-sm ${newAddress.region ? 'text-gray-900' : 'text-gray-400'}`}>
-                      {newAddress.region || "Koshi Province/Bhadrapur/Mechi Hospital Area"}
-                    </Text>
-                  </TouchableOpacity>
+                  <TextInput
+                    placeholder="Province/City/Area"
+                    className="border border-gray-300 rounded-lg p-3 text-sm text-gray-900 bg-white"
+                    value={newAddress.region}
+                    onChangeText={(text) => setNewAddress((prev) => ({ ...prev, region: text }))}
+                    placeholderTextColor="#9ca3af"
+                  />
                 </View>
 
                 <View>
@@ -623,107 +542,8 @@ const Checkout = () => {
                   </Text>
                 </TouchableOpacity>
               </View>
-            </KeyboardAvoidingView>
-          </ScrollView>
-        </SafeAreaView>
-      </Modal>
-
-      <Modal
-        visible={regionModalVisible}
-        animationType="slide"
-        onRequestClose={() => setRegionModalVisible(false)}
-      >
-        <SafeAreaView className="flex-1 bg-white">
-          <View className="flex-row items-center justify-between px-4 py-3 border-b border-gray-200 bg-white shadow-sm">
-            <Text className="text-lg font-bold text-gray-900">
-              Select address
-            </Text>
-            <TouchableOpacity
-              onPress={() => setRegionModalVisible(false)}
-              className="p-1"
-            >
-              <Ionicons name="close" size={24} color="#374151" />
-            </TouchableOpacity>
-          </View>
-
-          <View className="px-4 py-3 border-b border-gray-100">
-            <View className="flex-row items-center space-x-2">
-              <TouchableOpacity
-                onPress={() => setCurrentStep("province")}
-                className={currentStep === "province" ? "" : "opacity-60"}
-              >
-                <Text className={`text-sm font-medium ${
-                  currentStep === "province" ? "text-purple-600" : "text-gray-600"
-                }`}>
-                  {getRegionModalTitle()}
-                </Text>
-              </TouchableOpacity>
-              
-              {selectedProvince && (
-                <>
-                  <Text className="text-gray-400">•</Text>
-                  <TouchableOpacity
-                    onPress={() => setCurrentStep("city")}
-                    className={currentStep === "city" ? "" : "opacity-60"}
-                  >
-                    <Text className={`text-sm font-medium ${
-                      currentStep === "city" ? "text-purple-600" : "text-gray-600"
-                    }`}>
-                      {selectedProvince}
-                    </Text>
-                  </TouchableOpacity>
-                </>
-              )}
-              
-              {selectedCity && (
-                <>
-                  <Text className="text-gray-400">•</Text>
-                  <TouchableOpacity
-                    onPress={() => setCurrentStep("district")}
-                    className={currentStep === "district" ? "" : "opacity-60"}
-                  >
-                    <Text className={`text-sm font-medium ${
-                      currentStep === "district" ? "text-purple-600" : "text-gray-600"
-                    }`}>
-                      {selectedCity}
-                    </Text>
-                  </TouchableOpacity>
-                </>
-              )}
-              
-              {currentStep === "district" && (
-                <>
-                  <Text className="text-gray-400">•</Text>
-                  <Text className="text-sm font-medium text-purple-600">
-                    Select district
-                  </Text>
-                </>
-              )}
-            </View>
-          </View>
-
-          <ScrollView className="flex-1">
-            <View className="py-2">
-              {getRegionModalData().map((item, index) => (
-                <TouchableOpacity
-                  key={index}
-                  onPress={() => {
-                    if (currentStep === "province") {
-                      handleProvinceSelect(item);
-                    } else if (currentStep === "city") {
-                      handleCitySelect(item);
-                    } else {
-                      handleDistrictSelect(item);
-                    }
-                  }}
-                  className="px-4 py-4 border-b border-gray-100 flex-row items-center justify-between"
-                >
-                  <Text className="text-sm text-gray-900">{item}</Text>
-                  <Ionicons name="chevron-forward" size={16} color="#9ca3af" />
-                </TouchableOpacity>
-              ))}
-            </View>
-          </ScrollView>
+            </ScrollView>
+          </KeyboardAvoidingView>
         </SafeAreaView>
       </Modal>
 
