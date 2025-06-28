@@ -73,49 +73,26 @@ export default function ProductDetails() {
 
   const handleConfirmPurchase = () => {
     if (product) {
-      const orderData = {
-        id: Date.now(),
-        orderNumber: `ORD-${Date.now()}`,
-        date: new Date().toISOString().split('T')[0],
-        status: 'Processing',
-        total: product.price * buyNowQuantity,
-        items: [
-          {
-            id: product.id,
-            name: product.name,
-            price: product.price,
-            quantity: buyNowQuantity,
-            image: product.image
-          }
-        ]
-      };
-  
-      console.log(`Buying ${buyNowQuantity} of ${product.name}`);
-      setShowBuyNowModal(false);
-      setBuyNowQuantity(1); // Reset quantity
-  
-      Toast.show({
-        type: "success",
-        text1: `Order placed successfully!`,
-        text2: `${buyNowQuantity} x ${product.name}`,
-        position: "top",
-        visibilityTime: 3000,
-      });
-  
+      // addToCart({
+      //   id: product.id,
+      //   name: product.name,
+      //   price: product.price,
+      //   image: product.image
+      // }, cartQuantity);
+
+      // setShowAddToCartModal(false);
+      // setCartQuantity(1);
+
       router.push({
-        pathname: "/orders",
+        pathname: "/checkout/[from]",
         params: {
-          items: JSON.stringify([
-            {
-              id: product.id,
-              name: product.name,
-              price: product.price,
-              quantity: buyNowQuantity,
-              image: product.image,
-            }
-          ]),
-          justOrdered: 'true'
-        }
+          from: "buyNow",
+          productId: product.id,
+          productName: product.name,
+          productPrice: product.price,
+          productImage: product.image,
+          quantity: buyNowQuantity,
+        },
       });
     }
   };

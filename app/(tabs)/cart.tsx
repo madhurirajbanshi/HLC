@@ -98,10 +98,9 @@ export default function Cart() {
     }
 
     router.push({
-      pathname: '/checkout',
+      pathname: '/checkout/[from]',
       params: {
-        items: JSON.stringify(itemsToCheckout),
-        justOrdered: 'true',
+        from: 'cart',
       },
     });
   };

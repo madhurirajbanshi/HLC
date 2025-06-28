@@ -1,10 +1,14 @@
-import { useUserStore } from "@/store/userStore";
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
-import { router, useLocalSearchParams } from 'expo-router';
+import { getOrders } from '@/services/orderService';
+import { Order } from '@/types/Order';
+import { Ionicons } from "@expo/vector-icons";
+import { useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
+  ActivityIndicator,
+  FlatList,
   Image,
+  Modal,
   ScrollView,
   StyleSheet,
   Text,
@@ -12,6 +16,7 @@ import {
   View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Toast from 'react-native-toast-message';
 
 interface OrderItem {
   id: number;
@@ -33,6 +38,10 @@ const getDeliveryOptionTitle = (option: string) => {
 };
 
 const Orders: React.FC = () => {
+  const [orders, setOrders] = useState<(Order & { id: string })[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedOrder, setSelectedOrder] = useState<Order & { id: string } | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
   const { 
     items, 
     deliveryOption, 
@@ -44,89 +53,115 @@ const Orders: React.FC = () => {
   const parsedItems: OrderItem[] = items ? JSON.parse(items as string) : [];
   const parsedAddress = shippingAddress ? JSON.parse(shippingAddress as string) : null;
 
+  useEffect(() => {
+    const fetchOrders = async () => {
+      setLoading(true);
+      try {
+        const data = await getOrders();
+        setOrders(data);
+      } catch (err) {
+        Toast.show({
+          type: 'error',
+          text1: 'Failed to fetch orders',
+          text2: (err as Error).message,
+          position: 'top',
+          visibilityTime: 2000,
+        });
+      }
+      setLoading(false);
+    };
+    fetchOrders();
+  }, []);
+
   // Render a single order card with delivery info and items
+  const renderOrder = ({ item }: { item: Order & { id: string } }) => (
+    <TouchableOpacity
+      style={styles.orderCard}
+      onPress={() => {
+        setSelectedOrder(item);
+        setModalVisible(true);
+      }}
+    >
+      <View style={styles.orderHeader}>
+        <Text style={styles.orderNumber}>Order #{item.id.slice(-6).toUpperCase()}</Text>
+        <View style={[styles.statusContainer, { borderColor: item.orderStatus === 'pending' ? '#F59E42' : '#10B981' }]}> 
+          <Text style={[styles.statusText, { color: item.orderStatus === 'pending' ? '#F59E42' : '#10B981' }]}>
+            {item.orderStatus.charAt(0).toUpperCase() + item.orderStatus.slice(1)}
+          </Text>
+        </View>
+      </View>
+      <Text style={styles.orderDate}>{new Date(item.orderedAt).toLocaleString()}</Text>
+      <Text style={styles.totalLabel}>Total: <Text style={styles.totalAmount}>₹{item.totalAmount.toLocaleString('en-IN')}</Text></Text>
+    </TouchableOpacity>
+  );
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="dark" />
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="#1F2937" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Order Details</Text>
+        <Text style={styles.headerTitle}>My Orders</Text>
         <View style={styles.headerRight} />
       </View>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Shipping Address */}
-        {parsedAddress && (
-          <View style={styles.addressSection}>
-            <View style={styles.addressHeader}>
-              <MaterialIcons name="location-on" size={18} color="#8B5CF6" />
-              <Text style={styles.addressTitle}>Shipping Address</Text>
-            </View>
-            <View style={styles.addressContent}>
-              <Text style={styles.addressName}>{parsedAddress.name}</Text>
-              <Text style={styles.addressText}>{parsedAddress.street}{parsedAddress.city ? `, ${parsedAddress.city}` : ''}</Text>
-              <Text style={styles.addressPhone}>📱 {parsedAddress.phone}</Text>
-            </View>
-          </View>
-        )}
-
-        {/* Delivery Information */}
-        <View style={styles.deliverySection}>
-          <View style={styles.deliveryHeader}>
-            <MaterialIcons name="local-shipping" size={18} color="#8B5CF6" />
-            <Text style={styles.deliveryTitle}>Delivery Information</Text>
-          </View>
-          <View style={styles.deliveryContent}>
-            <Text style={styles.deliveryOption}>{getDeliveryOptionTitle(deliveryOption as string)}</Text>
+      {loading ? (
+        <ActivityIndicator size="large" color="#8B5CF6" style={{ marginTop: 40 }} />
+      ) : orders.length === 0 ? (
+        <View style={styles.emptyState}>
+          <Text style={styles.emptyTitle}>No orders found</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={orders}
+          renderItem={renderOrder}
+          keyExtractor={item => item.id}
+          contentContainerStyle={styles.ordersList}
+        />
+      )}
+      {/* Order Details Modal */}
+      <Modal
+        visible={modalVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.2)', justifyContent: 'center', alignItems: 'center' }}>
+          <View style={{ backgroundColor: 'white', borderRadius: 16, padding: 20, width: '90%', maxHeight: '80%' }}>
+            <TouchableOpacity style={{ alignSelf: 'flex-end' }} onPress={() => setModalVisible(false)}>
+              <Ionicons name="close" size={24} color="#374151" />
+            </TouchableOpacity>
+            {selectedOrder && (
+              <ScrollView>
+                <Text style={styles.orderNumber}>Order #{selectedOrder.id.slice(-6).toUpperCase()}</Text>
+                <Text style={styles.orderDate}>{new Date(selectedOrder.orderedAt).toLocaleString()}</Text>
+                <Text style={styles.statusText}>Status: {selectedOrder.orderStatus.charAt(0).toUpperCase() + selectedOrder.orderStatus.slice(1)}</Text>
+                <Text style={styles.totalLabel}>Total: <Text style={styles.totalAmount}>₹{selectedOrder.totalAmount.toLocaleString('en-IN')}</Text></Text>
+                <Text style={styles.itemsTitle}>Items:</Text>
+                {selectedOrder.items.map((item, idx) => (
+                  <View key={idx} style={styles.itemRow}>
+                    <Image source={{ uri: `https://github.com/bpcancode/ulc-images/blob/main/${item.image}?raw=true` }} style={styles.itemImage} resizeMode="contain" />
+                    <View style={styles.itemDetails}>
+                      <Text style={styles.itemName}>{item.name}</Text>
+                      <Text style={styles.itemQuantity}>Qty: {item.quantity}</Text>
+                      <Text style={styles.itemPrice}>₹{item.price.toLocaleString('en-IN')}</Text>
+                    </View>
+                    <View style={styles.itemTotal}>
+                      <Text style={styles.itemTotalPrice}>₹{(item.price * item.quantity).toLocaleString('en-IN')}</Text>
+                    </View>
+                  </View>
+                ))}
+                <Text style={styles.itemsTitle}>Shipping Address:</Text>
+                <Text style={styles.addressText}>{selectedOrder.shippingAddress.recipientName}</Text>
+                <Text style={styles.addressText}>{selectedOrder.shippingAddress.street}, {selectedOrder.shippingAddress.city}, {selectedOrder.shippingAddress.state}</Text>
+                <Text style={styles.addressText}>Phone: {selectedOrder.shippingAddress.phoneNumber}</Text>
+              </ScrollView>
+            )}
           </View>
         </View>
-
-        {/* Order Items */}
-        <View style={styles.itemsSection}>
-          <Text style={styles.itemsTitle}>Items ({parsedItems.length})</Text>
-          {parsedItems.map((product) => (
-            <View key={product.id} style={styles.itemRow}>
-              <Image
-                source={{ uri: `https://github.com/bpcancode/ulc-images/blob/main/${product.image}?raw=true` }}
-                style={styles.itemImage}
-                resizeMode="contain"
-              />
-              <View style={styles.itemDetails}>
-                <Text style={styles.itemName} numberOfLines={2}>{product.name}</Text>
-                <Text style={styles.itemQuantity}>Qty: {product.quantity}</Text>
-                <Text style={styles.itemPrice}>₹{product.price.toLocaleString('en-IN')}</Text>
-              </View>
-              <View style={styles.itemTotal}>
-                <Text style={styles.itemTotalPrice}>
-                  ₹{(product.price * product.quantity).toLocaleString('en-IN')}
-                </Text>
-              </View>
-            </View>
-          ))}
-        </View>
-
-        {/* Order Summary */}
-        <View style={styles.orderSummary}>
-          <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Subtotal</Text>
-            <Text style={styles.summaryValue}>₹{Number(subtotal || 0).toLocaleString('en-IN')}</Text>
-          </View>
-          <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Delivery Fee</Text>
-            <Text style={styles.summaryValue}>
-              {Number(deliveryFee) === 0 ? 'Free' : `₹${Number(deliveryFee || 0).toLocaleString('en-IN')}`}
-            </Text>
-          </View>
-          <View style={[styles.summaryRow, styles.totalRow]}>
-            <Text style={styles.totalLabel}>Total Amount</Text>
-            <Text style={styles.totalAmount}>₹{Number(total || 0).toLocaleString('en-IN')}</Text>
-          </View>
-        </View>
-      </ScrollView>
+      </Modal>
     </SafeAreaView>
   );
 };
+
+export default Orders;
 
 const styles = StyleSheet.create({
   container: {

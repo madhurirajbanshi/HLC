@@ -22,9 +22,6 @@ export const getProductById = async (id: string): Promise<Product | null> => {
   const docRef = doc(db, 'products', id);
   const docSnap = await getDoc(docRef);
 
-  console.log('Looking for product with id:', id);
-  console.log('Doc exists:', docSnap.exists());
-
   if (docSnap.exists()) {
     return {
       id: docSnap.id,

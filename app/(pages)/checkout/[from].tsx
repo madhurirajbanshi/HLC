@@ -4,7 +4,7 @@ import { saveOrder } from "@/services/orderService";
 import type { Order, OrderStatus, PaymentMethod } from "@/types/Order";
 import { ShippingAddress } from "@/types/ShippingAddress";
 import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 
 import React, { useEffect, useState } from "react";
 import {
@@ -30,7 +30,10 @@ type DeliveryOption = {
 };
 
 const Checkout = () => {
-    const { cartItems: orderItems, clearCart } = useCart();
+
+    const { from, productId, productName, productPrice, productImage, quantity } = useLocalSearchParams();
+
+    const { cartItems: orderItemsFromCart, clearCart } = useCart();
 
     const [addresses, setAddresses] = useState<(ShippingAddress & { id: string })[]>([]);
 
@@ -55,7 +58,7 @@ const Checkout = () => {
 
     }, []);
 
-    const fetchAddresses = async () => {
+    const fetchAddresses = async  () => {
         const result = await getShippingAddresses();
         setAddresses(result);
         setSelectedAddressId(result[0].id);
@@ -64,6 +67,20 @@ const Checkout = () => {
     const formatPrice = (price: number) => `Rs.${price.toLocaleString()}`;
     const getTotalAmount = () => orderItems.reduce((total, item) => total + item.price * item.quantity, 0);
 
+    let orderItems: any[] = [];
+    if (from === 'cart') {
+        orderItems = orderItemsFromCart;
+    } else if (from === 'buyNow') {
+        orderItems = [
+            {
+                id: productId,
+                name: productName,
+                price: Number(productPrice),
+                image: productImage,
+                quantity: Number(quantity) || 1,
+            },
+        ];
+    }
 
     if (orderItems.length === 0) {
         return (
@@ -92,7 +109,6 @@ const Checkout = () => {
     }
 
     const handleSaveAddress = async () => {
-
         if (
             !newAddress.recipientName ||
             !newAddress.street ||
@@ -102,6 +118,7 @@ const Checkout = () => {
             Alert.alert("Incomplete Information", "Please fill all required fields to continue");
             return;
         }
+
         try {
             const addressData: ShippingAddress = {
                 recipientName: newAddress.recipientName,
@@ -114,10 +131,7 @@ const Checkout = () => {
                 createdAt: new Date()
             };
             await saveShippingAddress(addressData);
-            await fetchAddresses();
-
-            setAddingAddress(false);
-            setAddressFormModalVisible(false);
+            fetchAddresses();
         } catch (err) {
             if (err instanceof Error) {
                 console.error("Failed to delete address:", err.message);
@@ -134,6 +148,8 @@ const Checkout = () => {
                 category: "Home",
                 createdAt: new Date(),
             });
+            setAddingAddress(false);
+            setAddressFormModalVisible(false);
         }
     };
 
@@ -180,7 +196,11 @@ const Checkout = () => {
 
         await sendOrder(orderData);
         Alert.alert("Success!", "Your order has been placed successfully!");
-        clearCart();
+        
+        if(from === 'cart') {
+            clearCart();
+        }
+
         router.push('/');
     };
 
