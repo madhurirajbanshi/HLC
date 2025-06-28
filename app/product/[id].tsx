@@ -1,21 +1,21 @@
-import React, { useState } from "react";
-import useFetch from "@/hooks/useFetch";
 import { useCart } from "@/hooks/useCart";
+import useFetch from "@/hooks/useFetch";
 import { getProductById } from "@/services/productService";
 import { router, useLocalSearchParams } from "expo-router";
+import React, { useState } from "react";
 import Toast from "react-native-toast-message";
 
+import { Ionicons } from "@expo/vector-icons";
 import {
   Image,
+  Modal,
   ScrollView,
   Text,
   TouchableOpacity,
   View,
   useWindowDimensions,
-  Modal,
 } from "react-native";
 import RenderHtml from "react-native-render-html";
-import { Ionicons } from "@expo/vector-icons";
 
 export default function ProductDetails() {
   const { id } = useLocalSearchParams();
