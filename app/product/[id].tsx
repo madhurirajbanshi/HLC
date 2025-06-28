@@ -29,25 +29,36 @@ export default function ProductDetails() {
   const { width } = useWindowDimensions();
 
   const [showBuyNowModal, setShowBuyNowModal] = useState(false);
-  const [quantity, setQuantity] = useState(1);
+  const [showAddToCartModal, setShowAddToCartModal] = useState(false);
+  const [buyNowQuantity, setBuyNowQuantity] = useState(1);
+  const [cartQuantity, setCartQuantity] = useState(1);
 
   const formatPrice = (price: number) => {
     return `Rs.${price.toLocaleString()}`;
   };
 
-  const handleAddToCart = () => {
+  const handleAddToCartClick = () => {
+    if (product) {
+      setShowAddToCartModal(true);
+    }
+  };
+
+  const handleConfirmAddToCart = () => {
     if (product) {
       addToCart({
         id: product.id,
         name: product.name,
         price: product.price,
         image: product.image
-      }, 1);
+      }, cartQuantity);
+
+      setShowAddToCartModal(false);
+      setCartQuantity(1); // Reset quantity
 
       Toast.show({
         type: "success",
         text1: "Added to cart successfully!",
-        text2: product.name,
+        text2: `${cartQuantity} x ${product.name}`,
         position: "top",
         visibilityTime: 2000,
       });
@@ -67,25 +78,26 @@ export default function ProductDetails() {
         orderNumber: `ORD-${Date.now()}`,
         date: new Date().toISOString().split('T')[0],
         status: 'Processing',
-        total: product.price * quantity,
+        total: product.price * buyNowQuantity,
         items: [
           {
             id: product.id,
             name: product.name,
             price: product.price,
-            quantity: quantity,
+            quantity: buyNowQuantity,
             image: product.image
           }
         ]
       };
   
-      console.log(`Buying ${quantity} of ${product.name}`);
+      console.log(`Buying ${buyNowQuantity} of ${product.name}`);
       setShowBuyNowModal(false);
+      setBuyNowQuantity(1); // Reset quantity
   
       Toast.show({
         type: "success",
         text1: `Order placed successfully!`,
-        text2: `${quantity} x ${product.name}`,
+        text2: `${buyNowQuantity} x ${product.name}`,
         position: "top",
         visibilityTime: 3000,
       });
@@ -98,7 +110,7 @@ export default function ProductDetails() {
               id: product.id,
               name: product.name,
               price: product.price,
-              quantity: quantity,
+              quantity: buyNowQuantity,
               image: product.image,
             }
           ]),
@@ -210,6 +222,96 @@ export default function ProductDetails() {
         <View className="h-24" />
       </ScrollView>
 
+      {/* Add to Cart Modal */}
+      <Modal
+        visible={showAddToCartModal}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowAddToCartModal(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/50">
+          <View className="bg-white w-11/12 p-5 rounded-2xl shadow-lg">
+            <View className="flex-row items-center mb-4">
+              <Ionicons name="cart-outline" size={24} color="#374151" />
+              <Text className="text-lg font-bold text-gray-900 ml-2">
+                Add to Cart
+              </Text>
+            </View>
+
+            <Image
+              source={{
+                uri: `https://github.com/bpcancode/ulc-images/blob/main/${product.image}?raw=true`,
+              }}
+              className="w-full h-32 mb-3 rounded-xl"
+              resizeMode="contain"
+            />
+
+            <Text
+              className="text-center text-base font-semibold text-gray-900 mb-4"
+              numberOfLines={2}
+            >
+              {product.name}
+            </Text>
+
+            <View className="bg-gray-50 p-3 rounded-lg mb-4">
+              <Text className="text-center text-sm text-gray-600">Price per item</Text>
+              <Text className="text-center text-lg font-bold text-gray-900">
+                {formatPrice(product.price)}
+              </Text>
+            </View>
+
+            <View className="flex-row items-center justify-between mb-4">
+              <Text className="text-sm font-medium text-gray-700">Quantity:</Text>
+
+              <View className="flex-row items-center space-x-4">
+                <TouchableOpacity
+                  onPress={() => setCartQuantity((prev) => Math.max(1, prev - 1))}
+                  className="bg-gray-200 w-8 h-8 items-center justify-center rounded"
+                >
+                  <Text className="text-xl text-gray-700">−</Text>
+                </TouchableOpacity>
+
+                <Text className="text-lg font-semibold w-6 text-center">{cartQuantity}</Text>
+
+                <TouchableOpacity
+                  onPress={() => setCartQuantity((prev) => prev + 1)}
+                  className="bg-gray-200 w-8 h-8 items-center justify-center rounded"
+                >
+                  <Text className="text-xl text-gray-700">+</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            {/* Show total price for selected quantity */}
+            <View className="bg-blue-50 p-3 rounded-lg mb-4">
+              <Text className="text-center text-sm text-blue-600">Total</Text>
+              <Text className="text-center text-xl font-bold text-blue-700">
+                {formatPrice(product.price * cartQuantity)}
+              </Text>
+            </View>
+
+            <TouchableOpacity
+              className="bg-blue-500 px-6 py-3 rounded-lg mb-3"
+              onPress={handleConfirmAddToCart}
+            >
+              <View className="flex-row items-center justify-center">
+                <Ionicons name="cart" size={20} color="white" />
+                <Text className="text-white font-semibold text-base ml-2">
+                  Add to Cart
+                </Text>
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              className="self-center"
+              onPress={() => setShowAddToCartModal(false)}
+            >
+              <Text className="text-center text-gray-500 font-medium">Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
       <Modal
         visible={showBuyNowModal}
         animationType="slide"
@@ -218,11 +320,18 @@ export default function ProductDetails() {
       >
         <View className="flex-1 justify-center items-center bg-black/50">
           <View className="bg-white w-11/12 p-5 rounded-2xl shadow-lg">
+            <View className="flex-row items-center mb-4">
+              <Ionicons name="flash" size={24} color="#f59e0b" />
+              <Text className="text-lg font-bold text-gray-900 ml-2">
+                Buy Now
+              </Text>
+            </View>
+
             <Image
               source={{
                 uri: `https://github.com/bpcancode/ulc-images/blob/main/${product.image}?raw=true`,
               }}
-              className="w-full h-40 mb-2 rounded-xl"
+              className="w-full h-32 mb-3 rounded-xl"
               resizeMode="contain"
             />
 
@@ -238,16 +347,16 @@ export default function ProductDetails() {
 
               <View className="flex-row items-center space-x-4">
                 <TouchableOpacity
-                  onPress={() => setQuantity((prev) => Math.max(1, prev - 1))}
+                  onPress={() => setBuyNowQuantity((prev) => Math.max(1, prev - 1))}
                   className="bg-gray-200 w-8 h-8 items-center justify-center rounded"
                 >
                   <Text className="text-xl text-gray-700">−</Text>
                 </TouchableOpacity>
 
-                <Text className="text-lg font-semibold w-6 text-center">{quantity}</Text>
+                <Text className="text-lg font-semibold w-6 text-center">{buyNowQuantity}</Text>
 
                 <TouchableOpacity
-                  onPress={() => setQuantity((prev) => prev + 1)}
+                  onPress={() => setBuyNowQuantity((prev) => prev + 1)}
                   className="bg-gray-200 w-8 h-8 items-center justify-center rounded"
                 >
                   <Text className="text-xl text-gray-700">+</Text>
@@ -256,23 +365,27 @@ export default function ProductDetails() {
             </View>
 
             {/* Show total price */}
-            <View className="bg-gray-50 p-3 rounded-lg mb-4">
-              <Text className="text-center text-lg font-bold text-gray-900">
-                Total: {formatPrice(product.price * quantity)}
+            <View className="bg-green-50 p-3 rounded-lg mb-4">
+              <Text className="text-center text-sm text-green-600">Total</Text>
+              <Text className="text-center text-xl font-bold text-green-700">
+                {formatPrice(product.price * buyNowQuantity)}
               </Text>
             </View>
 
             <TouchableOpacity
-              className="bg-electric px-6 py-3 rounded-lg self-center"
+              className="bg-electric px-6 py-3 rounded-lg mb-3"
               onPress={handleConfirmPurchase}
             >
-              <Text className="text-white font-semibold text-base text-center">
-                Confirm Purchase
-              </Text>
+              <View className="flex-row items-center justify-center">
+                <Ionicons name="flash" size={20} color="white" />
+                <Text className="text-white font-semibold text-base ml-2">
+                  Confirm Purchase
+                </Text>
+              </View>
             </TouchableOpacity>
 
             <TouchableOpacity
-              className="mt-3 self-center"
+              className="self-center"
               onPress={() => setShowBuyNowModal(false)}
             >
               <Text className="text-center text-red-500 font-medium">Cancel</Text>
@@ -287,7 +400,7 @@ export default function ProductDetails() {
             className={`flex-1 py-4 rounded-xl flex-row items-center justify-center ${
               isInCart(product.id) ? 'bg-green-100' : 'bg-gray-100'
             }`}
-            onPress={handleAddToCart}
+            onPress={handleAddToCartClick}
           >
             <Ionicons 
               name={isInCart(product.id) ? "checkmark-circle" : "cart-outline"} 
@@ -297,7 +410,7 @@ export default function ProductDetails() {
             <Text className={`font-semibold text-base ml-2 ${
               isInCart(product.id) ? 'text-green-700' : 'text-gray-700'
             }`}>
-              {isInCart(product.id) ? 'Added to Cart' : 'Add to Cart'}
+              {isInCart(product.id) ? 'Add More' : 'Add to Cart'}
             </Text>
           </TouchableOpacity>
 
