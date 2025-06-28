@@ -5,7 +5,6 @@ import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState } from 'react';
 import {
   Animated,
-  Dimensions,
   FlatList,
   Image,
   ScrollView,
@@ -13,12 +12,11 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 
-const { width } = Dimensions.get('window');
 
 interface OrderItem {
   id: number;
@@ -266,7 +264,6 @@ const Orders: React.FC = () => {
     <SafeAreaView style={styles.container}>
       <StatusBar style="dark" />
 
-      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <Ionicons name="arrow-back" size={24} color="#1F2937" />
@@ -276,7 +273,6 @@ const Orders: React.FC = () => {
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Delivery Information Form */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <MaterialIcons name="location-on" size={24} color="#8B5CF6" />
@@ -404,18 +400,9 @@ const Orders: React.FC = () => {
         )}
       </ScrollView>
 
-      {/* Bottom Action Bar */}
       {orders.length > 0 && (
         <View style={styles.bottomBar}>
           <View style={styles.actionButtons}>
-            {/* <TouchableOpacity
-              style={styles.secondaryButton}
-              onPress={() => router.push('/signup')}
-            >
-              <MaterialIcons name="person-add" size={20} color="#6B7280" />
-              <Text style={styles.secondaryButtonText}>Sign Up</Text>
-            </TouchableOpacity> */}
-
             <TouchableOpacity
               style={styles.primaryButton}
               onPress={handleConfirmOrder} >
