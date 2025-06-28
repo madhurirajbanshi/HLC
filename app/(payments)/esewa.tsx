@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { WebView, WebViewNavigation } from 'react-native-webview';
 import { useLocalSearchParams } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import { WebView } from 'react-native-webview';
 import { generateEsewaPaymentForm } from '../../services/payment/esewaService';
 
 const EsewaScreen: React.FC = () => {
@@ -15,10 +15,6 @@ const EsewaScreen: React.FC = () => {
     generateForm();
   }, [price]);
 
-  const handleNavigationStateChange = (navState: WebViewNavigation) => {
-    console.log('Navigated to:', navState.url);
-  };
-
   if (!htmlForm) return null;
 
   return (
@@ -28,7 +24,6 @@ const EsewaScreen: React.FC = () => {
       javaScriptEnabled={true}
       domStorageEnabled={true}
       userAgent="Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 Chrome/90.0.4430.91 Mobile Safari/537.36"
-      onNavigationStateChange={handleNavigationStateChange}
       startInLoadingState={true}
     />
   );

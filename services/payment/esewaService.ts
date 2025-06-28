@@ -1,5 +1,4 @@
 import * as Crypto from 'expo-crypto';
-import { encode as btoa } from 'base-64'; // ✅ correct way
 import { v4 as uuidv4 } from 'uuid';
 
 export const generateEsewaPaymentForm = async (price: number) => {

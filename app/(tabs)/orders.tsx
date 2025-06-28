@@ -16,6 +16,7 @@ import {
   View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Toast from 'react-native-toast-message';
 
 interface OrderItem {
   id: number;
@@ -57,10 +58,15 @@ const Orders: React.FC = () => {
       setLoading(true);
       try {
         const data = await getOrders();
-        console.log('Fetched orders:', data);
         setOrders(data);
       } catch (err) {
-        // handle error
+        Toast.show({
+          type: 'error',
+          text1: 'Failed to fetch orders',
+          text2: (err as Error).message,
+          position: 'top',
+          visibilityTime: 2000,
+        });
       }
       setLoading(false);
     };

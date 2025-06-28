@@ -4,10 +4,9 @@ export default function Layout() {
   return (
     <Stack>
       <Stack.Screen
-        name="checkout"
+        name="checkout/[from]"
         options={{
           title: 'Checkout',
-          headerShown: false,
         }}
       />
     </Stack>

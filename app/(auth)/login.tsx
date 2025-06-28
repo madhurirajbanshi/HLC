@@ -3,6 +3,7 @@ import { router } from 'expo-router'
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth'
 import React, { useState } from 'react'
 import { SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity } from 'react-native'
+import Toast from 'react-native-toast-message'
 
 
 const login = () => {
@@ -16,7 +17,6 @@ const login = () => {
       const user = await signInWithEmailAndPassword(auth, email, password)
       if (user) router.replace('/(tabs)');
     } catch (error: any) {
-      console.log(error)
       alert('Sign in failed: ' + error.message);
     }
   }
@@ -26,8 +26,13 @@ const login = () => {
       const user = await createUserWithEmailAndPassword(auth, email, password)
       if (user) router.replace('/(tabs)');
     } catch (error: any) {
-      console.log(error)
-      alert('Sign in failed: ' + error.message);
+      Toast.show({
+        type: 'error',
+        text1: 'Sign up failed',
+        text2: error.message,
+        position: 'top',
+        visibilityTime: 2000,
+      });
     }
   }
 

@@ -1,11 +1,11 @@
 import { Stack } from "expo-router";
-import "../global.css";
 import Toast from 'react-native-toast-message';
+import "../global.css";
 
 export default function RootLayout() {
   return (
     <>
-      <Stack>
+      <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen
           name="(tabs)"
           options={{ headerShown: false }}
@@ -14,6 +14,7 @@ export default function RootLayout() {
           name="product/[id]"
           options={{ headerShown: false }}
         />
+
       </Stack>
       <Toast />
     </>
