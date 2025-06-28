@@ -1,141 +1,20 @@
-import { useCart } from '@/hooks/useCart';
-import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
-import React, { useEffect, useState } from 'react';
-import {
-  Alert,
-  Image,
-  Pressable,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import Toast from 'react-native-toast-message';
+import useCart from "@/hooks/useCart";
+import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
+import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-export default function Cart() {
-  const {
-    cartItems,
-    loading,
-    removeFromCart,
-    updateQuantity,
-    clearCart,
-    getCartItemCount,
-  } = useCart();
 
-  const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({});
 
-  useEffect(() => {
-    const initialChecked = cartItems.reduce((acc, item) => {
-      acc[item.id] = true; 
-      return acc;
-    }, {} as Record<string, boolean>);
-    setCheckedItems(initialChecked);
-  }, [cartItems]);
+const Checkout = () => {
 
-  const formatPrice = (price: number) => {
-    return `Rs.${price.toLocaleString()}`;
-  };
+    const { cartItems: orderItmes, loading } = useCart();
 
-  const handleToggleCheck = (id: string) => {
-    setCheckedItems((prev) => ({
-      ...prev,
-      [id]: !prev[id],
-    }));
-  };
+    const formatPrice = (price: number) => {
+        return `Rs.${price.toLocaleString()}`;
+    };
 
-  const handleRemoveItem = (productId: string, productName: string) => {
-    Alert.alert(
-      'Remove Item',
-      `Are you sure you want to remove "${productName}" from your cart?`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Remove',
-          style: 'destructive',
-          onPress: () => {
-            removeFromCart(productId);
-            Toast.show({
-              type: 'success',
-              text1: 'Item removed from cart',
-              position: 'top',
-              visibilityTime: 2000,
-            });
-          },
-        },
-      ]
-    );
-  };
-
-  const handleClearCart = () => {
-    Alert.alert(
-      'Clear Cart',
-      'Are you sure you want to remove all items from your cart?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Clear All',
-          style: 'destructive',
-          onPress: () => {
-            clearCart();
-            Toast.show({
-              type: 'success',
-              text1: 'Cart cleared',
-              position: 'top',
-              visibilityTime: 2000,
-            });
-          },
-        },
-      ]
-    );
-  };
-
-  const handleCheckout = () => {
-    const itemsToCheckout = cartItems.filter(item => checkedItems[item.id]);
-    if (itemsToCheckout.length === 0) {
-      Toast.show({
-        type: 'info',
-        text1: 'Please select at least one item to checkout',
-        position: 'top',
-        visibilityTime: 2000,
-      });
-      return;
-    }
-  
-    router.push({
-      pathname: '/(pages)/checkout',
-      params: {
-        items: JSON.stringify(itemsToCheckout),
-        justOrdered: 'true',
-      },
-    });
-  };
-  
-
-  const allChecked = cartItems.length > 0 && cartItems.every(item => checkedItems[item.id]);
-
-  const toggleSelectAll = () => {
-    if (allChecked) {
-      const newChecked: Record<string, boolean> = {};
-      cartItems.forEach(item => (newChecked[item.id] = false));
-      setCheckedItems(newChecked);
-    } else {
-      const newChecked: Record<string, boolean> = {};
-      cartItems.forEach(item => (newChecked[item.id] = true));
-      setCheckedItems(newChecked);
-    }
-  };
-
-  if (loading) {
-    return (
-      <SafeAreaView className="flex-1 justify-center items-center bg-gray-50">
-        <Text className="text-lg text-gray-600">Loading cart...</Text>
-      </SafeAreaView>
-    );
-  }
-
-  if (cartItems.length === 0) {
+    if (orderItmes.length === 0) {
     return (
       <SafeAreaView className="flex-1 justify-center items-center bg-gray-50 px-4">
         <Ionicons name="cart-outline" size={80} color="#9ca3af" />
@@ -162,33 +41,21 @@ export default function Cart() {
       {/* Header */}
       <View className="bg-white px-4 py-6 border-b border-gray-100">
         <View className="flex-row items-center justify-between">
-          <Text className="text-2xl font-bold text-gray-900">Shopping Cart</Text>
-          <TouchableOpacity onPress={handleClearCart}>
-            <Text className="text-red-500 font-medium">Clear All</Text>
-          </TouchableOpacity>
+          <Text className="text-2xl font-bold text-gray-900">Items</Text>
         </View>
         <Text className="text-gray-500 mt-1">
-          {getCartItemCount()} {getCartItemCount() === 1 ? 'item' : 'items'}
+          {orderItmes.length} {orderItmes.length === 1 ? 'item' : 'items'}
         </Text>
       </View>
 
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         <View className="px-4 py-4">
-          {cartItems.map((item) => (
+          {orderItmes.map((item) => (
             <View
               key={item.id}
               className="bg-white rounded-2xl p-4 mb-4 shadow-sm"
             >
               <View className="flex-row items-center">
-                <Pressable
-                  onPress={() => handleToggleCheck(item.id)}
-                  className="w-6 h-6 border border-gray-400 rounded-md items-center justify-center mr-4"
-                >
-                  {checkedItems[item.id] && (
-                    <Ionicons name="checkmark" size={20} color="#2563eb" />
-                  )}
-                </Pressable>
-
                 <Image
                   source={{
                     uri: `https://github.com/bpcancode/ulc-images/blob/main/${item.image}?raw=true`,
@@ -208,7 +75,7 @@ export default function Cart() {
                     {formatPrice(item.price)}
                   </Text>
 
-                  <View className="flex-row items-center justify-between">
+                  {/* <View className="flex-row items-center justify-between">
                     <View className="flex-row items-center">
                       <TouchableOpacity
                         onPress={() =>
@@ -239,7 +106,7 @@ export default function Cart() {
                     >
                       <Ionicons name="trash-outline" size={20} color="#ef4444" />
                     </TouchableOpacity>
-                  </View>
+                  </View> */}
                 </View>
               </View>
 
@@ -256,7 +123,7 @@ export default function Cart() {
       </ScrollView>
 
      
-<View className="bg-white border-t border-gray-100 px-4 py-8 mt-10 flex-row items-center justify-between">
+{/* <View className="bg-white border-t border-gray-100 px-4 py-8 mt-10 flex-row items-center justify-between">
   <Pressable
     onPress={toggleSelectAll}
     className="flex-row items-center"
@@ -270,7 +137,7 @@ export default function Cart() {
 
   <Text className="text-lg font-bold text-gray-900">
     Subtotal: {formatPrice(
-      cartItems
+      orderItmes
         .filter(item => checkedItems[item.id])
         .reduce((sum, item) => sum + item.price * item.quantity, 0)
     )}
@@ -290,8 +157,10 @@ export default function Cart() {
     <Ionicons name="card-outline" size={20} color="white" />
     <Text className="text-white font-bold text-lg ml-2">Checkout</Text>
   </TouchableOpacity>
-</View>
+</View> */}
 
     </SafeAreaView>
   );
 }
+
+export default Checkout
