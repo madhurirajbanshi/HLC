@@ -41,9 +41,12 @@ const Login = () => {
           text1: 'Welcome Back!',
           text2: 'Login successful',
           position: 'top',
-          visibilityTime: 2000,
+          visibilityTime: 1500, 
+          autoHide: true,
         });
-        router.replace('/(tabs)');
+        setTimeout(() => {
+          router.replace('/(tabs)');
+        }, 1200); 
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
@@ -83,7 +86,7 @@ const Login = () => {
         <Text style={styles.subtitle}>Enter your credentials to login</Text>
 
           <View style={styles.inputContainer}>
-            <Ionicons name="mail-outline" size={20} color="#9CA3AF" style={styles.inputIcon} />
+            <Ionicons name="person-outline" size={20} color="#9CA3AF" style={styles.inputIcon} />
             <TextInput
               style={styles.textInput}
               placeholder="Email"
