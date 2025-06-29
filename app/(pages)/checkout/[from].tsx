@@ -5,6 +5,7 @@ import type { Order, OrderStatus, PaymentMethod } from "@/types/Order";
 import { ShippingAddress } from "@/types/ShippingAddress";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
+import { ActivityIndicator } from "react-native";
 
 import React, { useEffect, useState } from "react";
 import {
@@ -52,6 +53,7 @@ const Checkout = () => {
         createdAt: new Date(),
     });
     const [paymentMethod, setPaymentMethod] = useState<'cod'>('cod');
+    const [placingOrder, setPlacingOrder] = useState(false);
 
     useEffect(() => {
         fetchAddresses();
@@ -131,7 +133,7 @@ const Checkout = () => {
                 createdAt: new Date()
             };
             await saveShippingAddress(addressData);
-            fetchAddresses();
+            await fetchAddresses();
         } catch (err) {
             if (err instanceof Error) {
                 console.error("Failed to delete address:", err.message);
@@ -173,6 +175,7 @@ const Checkout = () => {
             Alert.alert("Address Required", "Please select a shipping address to continue");
             return;
         }
+        setPlacingOrder(true);
         const orderData = {
             items: orderItems,
             shippingAddress: selectedAddress,
@@ -185,6 +188,7 @@ const Checkout = () => {
         try {
             await saveOrder(orderData);
         } catch (err) {
+            setPlacingOrder(false);
             if (err instanceof Error) {
                 console.error("Failed to save order:", err.message);
             } else {
@@ -202,6 +206,7 @@ const Checkout = () => {
         }
 
         router.push('/');
+        setPlacingOrder(false);
     };
 
     const sendOrder = async (orderData: Order) => {
@@ -249,6 +254,15 @@ const Checkout = () => {
 
     return (
         <SafeAreaView className="flex-1 bg-gray-50">
+            {/* Loader Modal */}
+            <Modal visible={placingOrder} transparent animationType="fade">
+                <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.15)', justifyContent: 'center', alignItems: 'center' }}>
+                    <View style={{ backgroundColor: 'white', padding: 32, borderRadius: 16, alignItems: 'center' }}>
+                        <ActivityIndicator size="large" color="#8B5CF6" />
+                        <Text style={{ marginTop: 16, fontSize: 16, color: '#333', fontWeight: 'bold' }}>Placing your order...</Text>
+                    </View>
+                </View>
+            </Modal>
 
             <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
                 <View className="px-4 pt-4  ">
