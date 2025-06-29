@@ -1,16 +1,16 @@
 import { auth } from '@/firebaseConfig';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import React, { useState } from 'react';
 import {
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import Toast from 'react-native-toast-message';
 
@@ -66,6 +66,7 @@ const SignUp = () => {
           position: 'top',
           visibilityTime: 2000,
         });
+        await updateProfile(user.user, { displayName: username });
         router.replace('/(tabs)');
       }
     } catch (error) {
