@@ -7,6 +7,7 @@ import {
   Dimensions,
   FlatList,
   Image,
+  Linking,
   StatusBar,
   Text,
   TextInput,
@@ -20,6 +21,19 @@ import { useUserStore } from "@/store/userStore";
 import { getAuth } from "firebase/auth";
 
 const { width } = Dimensions.get('window');
+
+
+const liveNoti = {
+  id: '3',
+  title: 'Live Lottery Draw',
+  message: 'Join us for the live lottery draw happening today at 5 PM.',
+  link: 'https://www.youtube.com/watch?v=C4SOe_0jLr0&t=2891s&ab_channel=ULCElectronicsPvt.Ltd',
+  imageUrl: 'https://i.ytimg.com/vi/C4SOe_0jLr0/hq720.jpg?sqp=-oaymwFBCNAFEJQDSFryq4qpAzMIARUAAIhCGAHYAQHiAQoIGBACGAY4AUAB8AEB-AH-CYAC0AWKAgwIABABGFQgXShlMA8=&rs=AOn4CLBmrjREN8EmWBfMfeGzylp5deJtlA',
+  timestamp: new Date(),
+  type: 'ytube',
+  read: false,
+  published: true
+};
 
 getAuth().onAuthStateChanged((user) => {
   if (user) {
@@ -44,8 +58,8 @@ export default function Index() {
   const filteredProducts =
     search.trim().length > 0
       ? products?.filter((item) =>
-          item.name.toLowerCase().includes(search.toLowerCase())
-        )
+        item.name.toLowerCase().includes(search.toLowerCase())
+      )
       : products;
 
   const renderItem = ({ item }: { item: Product }) => (
@@ -86,7 +100,7 @@ export default function Index() {
   //         activeOpacity={1}
   //         onPress={() => setModalVisible(false)}
   //       />
-        
+
   //       <View
   //         style={{
   //           position: 'absolute',
@@ -118,7 +132,7 @@ export default function Index() {
   //             >
   //               <Ionicons name="close" size={24} color="#333" />
   //             </TouchableOpacity>
-              
+
   //             <View className="items-center">
   //               <View style={{
   //                 width: 80,
@@ -133,7 +147,7 @@ export default function Index() {
   //               }}>
   //                 <Ionicons name="person" size={40} color="#8000FF" />
   //               </View>
-                
+
   //               <Text style={{ 
   //                 color: '#333', 
   //                 fontSize: 18, 
@@ -142,7 +156,7 @@ export default function Index() {
   //               }}>
   //                 {user?.displayName || "User"}
   //               </Text>
-                
+
   //               <Text style={{ 
   //                 color: '#666', 
   //                 fontSize: 14,
@@ -154,7 +168,7 @@ export default function Index() {
   //           </View>
 
   //           <View style={{ paddingVertical: 20 }}>
-              
+
   //             <TouchableOpacity
   //               style={{
   //                 flexDirection: 'row',
@@ -357,44 +371,84 @@ export default function Index() {
           numColumns={2}
           contentContainerStyle={{ padding: 10, justifyContent: "center" }}
           ListHeaderComponent={
-            <View className="flex-row items-center px-2 py-2 mb-2">
-              {/* <TouchableOpacity
-                onPress={() => setModalVisible(true)}
-                style={{ marginRight: 12 }}
-              >
-                <Ionicons name="menu" size={28} color="#8000FF" />
-              </TouchableOpacity> */}
+            <>
+              {/* Notification Banner */}
+              
+              <View className="flex-row items-center px-2 py-2 mb-2">
+                {/* <TouchableOpacity
+                  onPress={() => setModalVisible(true)}
+                  style={{ marginRight: 12 }}
+                >
+                  <Ionicons name="menu" size={28} color="#8000FF" />
+                </TouchableOpacity> */}
 
-              <View
-                className="flex-1 flex-row items-center bg-gray-100 border border-electric rounded-full mx-2"
-                style={{ height: 36, paddingHorizontal: 12 }}
-              >
-                <Ionicons name="search" size={18} color="#888" />
-                <TextInput
-                  placeholder="Search products"
-                  placeholderTextColor="#999"
-                  className="flex-1 text-sm"
-                  style={{ paddingHorizontal: 8, paddingVertical: 0 }}
-                  value={search}
-                  onChangeText={setSearch}
-                />
+                <View
+                  className="flex-1 flex-row items-center bg-gray-100 border border-electric rounded-full mx-2"
+                  style={{ height: 36, paddingHorizontal: 12 }}
+                >
+                  <Ionicons name="search" size={18} color="#888" />
+                  <TextInput
+                    placeholder="Search products"
+                    placeholderTextColor="#999"
+                    className="flex-1 text-sm"
+                    style={{ paddingHorizontal: 8, paddingVertical: 0 }}
+                    value={search}
+                    onChangeText={setSearch}
+                  />
+                </View>
+
+                <TouchableOpacity
+                  onPress={() => router.push("/notification")}
+                  style={{ position: "relative", marginRight: 10 }}
+                >
+                  <Ionicons name="notifications-outline" size={26} color="#555" />
+                  <NotificationBadge count={unreadNotificationCount} />
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={{ position: 'relative', top: -2 }}
+                >
+                  <Ionicons name="person-circle-outline" size={32} color="#8000FF" />
+                </TouchableOpacity>
+
               </View>
 
               <TouchableOpacity
-                onPress={() => router.push("/notification")}
-                style={{ position: "relative", marginRight: 10 }}
+                onPress={() => Linking.openURL(liveNoti.link)}
+                activeOpacity={0.85}
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  backgroundColor: '#fff0f6',
+                  borderRadius: 14,
+                  marginBottom: 12,
+                  marginHorizontal: 2,
+                  padding: 10,
+                  shadowColor: '#8000FF',
+                  shadowOpacity: 0.08,
+                  shadowRadius: 6,
+                  elevation: 2,
+                }}
               >
-                <Ionicons name="notifications-outline" size={26} color="#555" />
-                <NotificationBadge count={unreadNotificationCount} />
+                <Image
+                  source={{ uri: liveNoti.imageUrl }}
+                  style={{ width: 60, height: 60, borderRadius: 10, marginRight: 12 }}
+                  resizeMode="cover"
+                />
+                <View style={{ flex: 1 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 2 }}>
+                    <Text style={{ color: '#e11d48', fontWeight: 'bold', marginRight: 8 }}>LIVE</Text>
+                    <Ionicons name="logo-youtube" size={18} color="#e11d48" />
+                  </View>
+                  <Text style={{ fontWeight: 'bold', fontSize: 15, color: '#222' }} numberOfLines={1}>
+                    {liveNoti.title}
+                  </Text>
+                  <Text style={{ color: '#444', fontSize: 13 }} numberOfLines={2}>
+                    {liveNoti.message}
+                  </Text>
+                </View>
               </TouchableOpacity>
-
-              <TouchableOpacity
-                style={{ position: 'relative', top: -2 }}
-              >
-                <Ionicons name="person-circle-outline" size={32} color="#8000FF" />
-              </TouchableOpacity>
-
-            </View>
+            </>
           }
         />
       )}
