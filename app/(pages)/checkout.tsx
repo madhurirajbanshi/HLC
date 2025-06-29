@@ -172,7 +172,7 @@ const Checkout = () => {
         } finally {
             setPlacingOrder(false);
         }
-        await sendOrderEmail(orderData);
+        sendOrderEmail(orderData);
         Alert.alert("Success!", "Your order has been placed successfully!");
         clearCart();
         router.push('/orders');
