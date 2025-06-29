@@ -5,6 +5,7 @@ import type { Order, OrderStatus, PaymentMethod } from "@/types/Order";
 import { ShippingAddress } from "@/types/ShippingAddress";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
+import { ActivityIndicator } from "react-native";
 
 import React, { useEffect, useState } from "react";
 import {
@@ -21,13 +22,6 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-type DeliveryOption = {
-    id: string;
-    title: string;
-    subtitle: string;
-    price: number;
-    duration: string;
-};
 
 const Checkout = () => {
     const { cartItems: orderItems, clearCart } = useCart();
@@ -49,6 +43,7 @@ const Checkout = () => {
         createdAt: new Date(),
     });
     const [paymentMethod, setPaymentMethod] = useState<'cod'>('cod');
+    const [placingOrder, setPlacingOrder] = useState(false);
 
     useEffect(() => {
         fetchAddresses();
@@ -63,8 +58,6 @@ const Checkout = () => {
 
     const formatPrice = (price: number) => `Rs.${price.toLocaleString()}`;
     const getTotalAmount = () => orderItems.reduce((total, item) => total + item.price * item.quantity, 0);
-
-
     if (orderItems.length === 0) {
         return (
             <SafeAreaView className="flex-1 justify-center items-center bg-gray-50 px-4">
@@ -157,6 +150,7 @@ const Checkout = () => {
             Alert.alert("Address Required", "Please select a shipping address to continue");
             return;
         }
+        setPlacingOrder(true);
         const orderData = {
             items: orderItems,
             shippingAddress: selectedAddress,
@@ -165,7 +159,6 @@ const Checkout = () => {
             totalAmount: orderItems.reduce((total, item) => total + item.price * item.quantity, 0),
             orderedAt: new Date().toISOString(),
         };
-
         try {
             await saveOrder(orderData);
         } catch (err) {
@@ -176,15 +169,16 @@ const Checkout = () => {
             }
             Alert.alert("Error", "Failed to place order. Please try again later.");
             return;
+        } finally {
+            setPlacingOrder(false);
         }
-
-        await sendOrder(orderData);
+        await sendOrderEmail(orderData);
         Alert.alert("Success!", "Your order has been placed successfully!");
         clearCart();
-        router.push('/');
+        router.push('/orders');
     };
 
-    const sendOrder = async (orderData: Order) => {
+    const sendOrderEmail = async (orderData: Order) => {
         const url = process.env.EXPO_PUBLIC_EMAIL_REQUEST_ENDPOINT || '';
         try {
             await fetch(url, {
@@ -229,6 +223,15 @@ const Checkout = () => {
 
     return (
         <SafeAreaView className="flex-1 bg-gray-50">
+            {/* Loader Modal */}
+            <Modal visible={placingOrder} transparent animationType="fade">
+                <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.15)', justifyContent: 'center', alignItems: 'center' }}>
+                    <View style={{ backgroundColor: 'white', padding: 32, borderRadius: 16, alignItems: 'center' }}>
+                        <ActivityIndicator size="large" color="#8B5CF6" />
+                        <Text style={{ marginTop: 16, fontSize: 16, color: '#333', fontWeight: 'bold' }}>Placing your order...</Text>
+                    </View>
+                </View>
+            </Modal>
 
             <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
                 <View className="px-4 pt-4  ">
