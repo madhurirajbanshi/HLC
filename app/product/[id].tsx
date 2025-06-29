@@ -5,6 +5,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import React, { useState } from "react";
 import Toast from "react-native-toast-message";
 
+import { useUserStore } from "@/store/userStore";
 import { Ionicons } from "@expo/vector-icons";
 import {
   Image,
@@ -18,6 +19,8 @@ import {
 import RenderHtml from "react-native-render-html";
 
 export default function ProductDetails() {
+
+  const { user } = useUserStore();
   const { id } = useLocalSearchParams();
   const { data: product, loading, error } = useFetch(() =>
     getProductById(id as string)
@@ -72,17 +75,20 @@ export default function ProductDetails() {
   };
 
   const handleConfirmPurchase = () => {
+
+    if (!user) {
+      Toast.show({
+        type: "error",
+        text1: "Please log in to continue",
+        position: "top",
+        visibilityTime: 2000,
+      });
+      router.push("/login");
+      setShowBuyNowModal(false);
+      return;
+    }
     if (product) {
-      // addToCart({
-      //   id: product.id,
-      //   name: product.name,
-      //   price: product.price,
-      //   image: product.image
-      // }, cartQuantity);
-
-      // setShowAddToCartModal(false);
-      // setCartQuantity(1);
-
+      setShowBuyNowModal(false);
       router.push({
         pathname: "/checkout/[from]",
         params: {

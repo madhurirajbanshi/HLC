@@ -1,4 +1,5 @@
 import { useCart } from '@/hooks/useCart';
+import { useUserStore } from '@/store/userStore';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
@@ -15,6 +16,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 
 export default function Cart() {
+
+  const {user} = useUserStore();
   const {
     cartItems,
     loading,
@@ -86,6 +89,18 @@ export default function Cart() {
   };
 
   const handleCheckout = () => {
+
+    if (!user) {
+      Toast.show({
+        type: 'info',
+        text1: 'Please login to proceed with checkout',
+        position: 'top',
+        visibilityTime: 2000,
+      });
+      router.push('/login');
+      return;
+    }
+
     const itemsToCheckout = cartItems.filter((item) => checkedItems[item.id]);
     if (itemsToCheckout.length === 0) {
       Toast.show({
