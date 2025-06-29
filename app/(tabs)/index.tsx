@@ -92,14 +92,14 @@ export default function Index() {
         <View
           style={{
             position: 'absolute',
-            right: 0,
+            left: 0,
             top: 0,
             bottom: 0,
             width: width * 0.8,
             maxWidth: 320,
             backgroundColor: 'white',
             shadowColor: '#000',
-            shadowOffset: { width: -2, height: 0 },
+            shadowOffset: { width: 2, height: 0 },
             shadowOpacity: 0.25,
             shadowRadius: 10,
             elevation: 16,
@@ -155,10 +155,8 @@ export default function Index() {
               </View>
             </View>
 
-            {/* Menu Items */}
             <View style={{ paddingVertical: 20 }}>
               
-              {/* My Orders */}
               <TouchableOpacity
                 style={{
                   flexDirection: 'row',
@@ -195,7 +193,6 @@ export default function Index() {
                 <Ionicons name="chevron-forward" size={20} color="#ccc" />
               </TouchableOpacity>
 
-              {/* Wishlist */}
               <TouchableOpacity
                 style={{
                   flexDirection: 'row',
@@ -231,9 +228,6 @@ export default function Index() {
                 </View>
                 <Ionicons name="chevron-forward" size={20} color="#ccc" />
               </TouchableOpacity>
-
-             
-
 
               {/* Help & Support */}
               <TouchableOpacity
@@ -311,39 +305,36 @@ export default function Index() {
             </View>
 
             <View style={{ padding: 20, paddingTop: 10 }}>
-  <TouchableOpacity
-    style={{
-      flexDirection: 'row',
-      alignItems: 'center',
-      padding: 10,
-    }}
-    onPress={async () => {
-      const auth = getAuth();
-      await signOut(auth);
-      setModalVisible(false);
-      router.replace("/login");
-    }}
-  >
-    <Ionicons 
-      name="exit-outline" 
-      size={20} 
-      color="#8000FF" 
-      style={{ marginLeft: 4 }} 
-    />
-    <Text
-      style={{
-        marginLeft: 6,
-        color: '#8000FF',
-        fontSize: 16,
-      }}
-    >
-      Exit
-    </Text>
-  </TouchableOpacity>
-</View>
-
-
-           
+              <TouchableOpacity
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  padding: 10,
+                }}
+                onPress={async () => {
+                  const auth = getAuth();
+                  await signOut(auth);
+                  setModalVisible(false);
+                  router.replace("/login");
+                }}
+              >
+                <Ionicons 
+                  name="exit-outline" 
+                  size={20} 
+                  color="#8000FF" 
+                  style={{ marginLeft: 4 }} 
+                />
+                <Text
+                  style={{
+                    marginLeft: 6,
+                    color: '#8000FF',
+                    fontSize: 16,
+                  }}
+                >
+                  Exit
+                </Text>
+              </TouchableOpacity>
+            </View>
           </ScrollView>
         </View>
       </View>
@@ -369,6 +360,13 @@ export default function Index() {
           contentContainerStyle={{ padding: 10, justifyContent: "center" }}
           ListHeaderComponent={
             <View className="flex-row items-center px-2 py-2 mb-2">
+              <TouchableOpacity
+                onPress={() => setModalVisible(true)}
+                style={{ marginRight: 12 }}
+              >
+                <Ionicons name="menu" size={28} color="#8000FF" />
+              </TouchableOpacity>
+
               <View
                 className="flex-1 flex-row items-center bg-gray-100 border border-electric rounded-full mx-2"
                 style={{ height: 36, paddingHorizontal: 12 }}
@@ -393,7 +391,6 @@ export default function Index() {
               </TouchableOpacity>
 
               <TouchableOpacity
-                onPress={() => setModalVisible(true)}
                 style={{ position: 'relative', top: -2 }}
               >
                 <Ionicons name="person-circle-outline" size={32} color="#8000FF" />
