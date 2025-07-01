@@ -19,22 +19,22 @@ const onboardingData = [
     id: '1',
     title: 'Welcome to ULC Electronics',
     description: 'Discover the latest in electronic devices and accessories',
-    image: require('../../assets/images/icon.png'),
-    backgroundColor: '#BF00FF',
+    image: require('../../assets/images/electronics.png'),
+    backgroundColor: '#8B5CF6',
   },
   {
     id: '2',
     title: 'Easy Shopping Experience',
     description: 'Browse, compare, and buy electronics with just a few taps',
-    image: require('../../assets/images/icon.png'),
-    backgroundColor: '#9D4EDD',
+    image: require('../../assets/images/electronics.png'),
+    backgroundColor: '#8B5CF6',
   },
   {
     id: '3',
     title: 'Fast & Secure Delivery',
     description: 'Get your electronics delivered quickly and safely',
-    image: require('../../assets/images/icon.png'),
-    backgroundColor: '#7209B7',
+    image: require('../../assets/images/electronics.png'),
+    backgroundColor: '#8B5CF6',
   },
 ];
 
@@ -58,7 +58,7 @@ const OnboardingScreen = () => {
 
   const handleFinish = async () => {
     try {
-      await AsyncStorage.setItem('hasSeenOnboarding', 'true');
+      await AsyncStorage.setItem('hasSeenOnboarding', 'false');
       router.replace('/(tabs)');
     } catch (error) {
       console.error('Error saving onboarding status:', error);
@@ -134,10 +134,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 40,
   },
   image: {
-    width: width * 0.7,
-    height: width * 0.7,
+    width: width * 0.4,       
+    height: width * 0.4,
+    marginBottom: 30,         
+    marginTop: -100,           
     borderRadius: 20,
   },
+  
   title: {
     fontSize: 28,
     fontWeight: 'bold',
@@ -189,20 +192,21 @@ const styles = StyleSheet.create({
   skipText: {
     color: '#FFFFFF',
     fontSize: 16,
-    opacity: 0.8,
+    opacity: 0.9,
   },
   nextButton: {
-    backgroundColor: '#FFFFFF',
+    // backgroundColor: '#FFFFFF',
     paddingVertical: 12,
-    paddingHorizontal: 24,
+    paddingHorizontal: 15,
     borderRadius: 25,
-    minWidth: 100,
+    minWidth: 80,
     alignItems: 'center',
   },
   nextText: {
-    color: '#BF00FF',
+    color: '#FFFFFF',
     fontSize: 16,
-    fontWeight: '600',
+    opacity: 0.9,
+
   },
 });
 

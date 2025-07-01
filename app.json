@@ -4,7 +4,7 @@
     "slug": "ULC",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/electronics.jpg",
+    "icon": "./assets/images/electronics.png",
     "scheme": "ulc",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -13,7 +13,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/electronics.jpg",
+        "foregroundImage": "./assets/images/electronics.png",
         "backgroundColor": "#BF00FF"
       },
       "edgeToEdgeEnabled": true,
@@ -32,7 +32,7 @@
           "image": "./assets/images/electronics.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#BF00FF"
+             "backgroundColor": "#8B5CF6"
         }
       ]
     ],

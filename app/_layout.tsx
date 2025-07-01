@@ -13,6 +13,9 @@ export default function RootLayout() {
   useEffect(() => {
     const checkInitialRoute = async () => {
       try {
+        // Temporarily clear onboarding status for testing
+        await AsyncStorage.removeItem('hasSeenOnboarding');
+        
         const hasSeenOnboarding = await AsyncStorage.getItem('hasSeenOnboarding');
         if (hasSeenOnboarding === null) {
           setInitialRoute('onboarding');

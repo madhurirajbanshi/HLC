@@ -14,7 +14,7 @@ import {
   View,
 } from 'react-native';
 import Toast from 'react-native-toast-message';
-import ULCLogo from '../../assets/images/icon.png';
+import ULCLogo from '../../assets/images/electronics.png'; 
 
 const Login = () => {
   const [email, setEmail] = useState('');
