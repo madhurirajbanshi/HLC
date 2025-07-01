@@ -15,9 +15,9 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/electronics.jpg",
         "backgroundColor": "#BF00FF"
-
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.anonymous.ULC"
     },
     "web": {
       "bundler": "metro",
@@ -32,7 +32,7 @@
           "image": "./assets/images/electronics.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-            "backgroundColor": "#BF00FF"
+          "backgroundColor": "#BF00FF"
         }
       ]
     ],
