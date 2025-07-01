@@ -2,16 +2,13 @@ import useFetch from "@/hooks/useFetch";
 import { getProducts } from "@/services/productService";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { signOut } from "firebase/auth";
 import React, { useState } from "react";
 import {
   Dimensions,
   FlatList,
   Image,
-  Linking,
   Modal,
   StatusBar,
-  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
@@ -20,30 +17,16 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import NotificationBadge from "@/components/notificationbadge";
+import { getAuth, signOut } from "firebase/auth";
+
 import { useUserStore } from "@/store/userStore";
-import { getAuth } from "firebase/auth";
-
-const { width } = Dimensions.get('window');
-
-
-const liveNoti = {
-  id: '3',
-  title: 'Live Lottery Draw',
-  message: 'Join us for the live lottery draw happening today at 5 PM.',
-  link: 'https://www.youtube.com/watch?v=C4SOe_0jLr0&t=2891s&ab_channel=ULCElectronicsPvt.Ltd',
-  imageUrl: 'https://i.ytimg.com/vi/C4SOe_0jLr0/hq720.jpg?sqp=-oaymwFBCNAFEJQDSFryq4qpAzMIARUAAIhCGAHYAQHiAQoIGBACGAY4AUAB8AEB-AH-CYAC0AWKAgwIABABGFQgXShlMA8=&rs=AOn4CLBmrjREN8EmWBfMfeGzylp5deJtlA',
-  timestamp: new Date(),
-  type: 'ytube',
-  read: false,
-  published: true
-};
 
 getAuth().onAuthStateChanged((user) => {
   if (user) {
     useUserStore.getState().setUser({
       uid: user.uid,
-      email: user.email ?? "",
-      displayName: user.displayName ?? "",
+      email: user.email ?? '',
+      displayName: user.displayName ?? '',
     });
   } else {
     useUserStore.getState().clearUser();
@@ -53,8 +36,7 @@ getAuth().onAuthStateChanged((user) => {
 export default function Index() {
   const { data: products, loading, error } = useFetch<Product[]>(getProducts);
   const [search, setSearch] = useState("");
-
-  const [profileModalVisible, setProfileModalVisible] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
 
   const user = useUserStore((state) => state.user);
   const unreadNotificationCount = 3;
@@ -91,62 +73,306 @@ export default function Index() {
     </TouchableOpacity>
   );
 
-  const logout = async () => {
-    const auth = getAuth();
-    await signOut(auth);
-    setProfileModalVisible(false);
-    router.replace('/');
-  };
+  // const UserMenuDrawer = () => (
+  //   <Modal
+  //     visible={modalVisible}
+  //     transparent
+  //     animationType="slide"
+  //     onRequestClose={() => setModalVisible(false)}
+  //   >
+  //     <View style={{ flex: 1, backgroundColor: "rgba(0, 0, 0, 0.5)" }}>
+  //       <TouchableOpacity
+  //         style={{ flex: 1 }}
+  //         activeOpacity={1}
+  //         onPress={() => setModalVisible(false)}
+  //       />
 
+  //       <View
+  //         style={{
+  //           position: 'absolute',
+  //           left: 0,
+  //           top: 0,
+  //           bottom: 0,
+  //           width: width * 0.8,
+  //           maxWidth: 320,
+  //           backgroundColor: 'white',
+  //           shadowColor: '#000',
+  //           shadowOffset: { width: 2, height: 0 },
+  //           shadowOpacity: 0.25,
+  //           shadowRadius: 10,
+  //           elevation: 16,
+  //         }}
+  //       >
+  //         <ScrollView style={{ flex: 1 }}>
+  //           <View style={{ 
+  //             backgroundColor: 'white', 
+  //             paddingTop: 50, 
+  //             paddingBottom: 20, 
+  //             paddingHorizontal: 20,
+  //             borderBottomWidth: 1,
+  //             borderBottomColor: '#f0f0f0'
+  //           }}>
+  //             <TouchableOpacity
+  //               onPress={() => setModalVisible(false)}
+  //               style={{ position: 'absolute', top: 45, right: 15 }}
+  //             >
+  //               <Ionicons name="close" size={24} color="#333" />
+  //             </TouchableOpacity>
 
+  //             <View className="items-center">
+  //               <View style={{
+  //                 width: 80,
+  //                 height: 80,
+  //                 borderRadius: 40,
+  //                 backgroundColor: '#f8f9fa',
+  //                 justifyContent: 'center',
+  //                 alignItems: 'center',
+  //                 marginBottom: 12,
+  //                 borderWidth: 2,
+  //                 borderColor: '#8000FF'
+  //               }}>
+  //                 <Ionicons name="person" size={40} color="#8000FF" />
+  //               </View>
 
-  return (
-    <SafeAreaView className="flex-1 bg-white">
-      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
-      {/* Profile Modal */}
-      <Modal
-        visible={profileModalVisible}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setProfileModalVisible(false)}
+  //               <Text style={{ 
+  //                 color: '#333', 
+  //                 fontSize: 18, 
+  //                 fontWeight: 'bold',
+  //                 marginBottom: 4 
+  //               }}>
+  //                 {user?.displayName || "User"}
+  //               </Text>
+
+  //               <Text style={{ 
+  //                 color: '#666', 
+  //                 fontSize: 14,
+  //                 textAlign: 'center'
+  //               }}>
+  //                 {user?.email || "No email"}
+  //               </Text>
+  //             </View>
+  //           </View>
+
+  //           <View style={{ paddingVertical: 20 }}>
+
+  //             <TouchableOpacity
+  //               style={{
+  //                 flexDirection: 'row',
+  //                 alignItems: 'center',
+  //                 paddingVertical: 16,
+  //                 paddingHorizontal: 20,
+  //                 borderBottomWidth: 1,
+  //                 borderBottomColor: '#f0f0f0',
+  //               }}
+  //               onPress={() => {
+  //                 setModalVisible(false);
+  //                 router.push('/orders');
+  //               }}
+  //             >
+  //               <View style={{
+  //                 width: 40,
+  //                 height: 40,
+  //                 borderRadius: 20,
+  //                 backgroundColor: '#f8f9fa',
+  //                 justifyContent: 'center',
+  //                 alignItems: 'center',
+  //                 marginRight: 16,
+  //               }}>
+  //                 <Ionicons name="bag-outline" size={20} color="#8000FF" />
+  //               </View>
+  //               <View style={{ flex: 1 }}>
+  //                 <Text style={{ fontSize: 16, fontWeight: '500', color: '#333' }}>
+  //                   My Orders
+  //                 </Text>
+  //                 <Text style={{ fontSize: 12, color: '#666', marginTop: 2 }}>
+  //                   Track your purchases
+  //                 </Text>
+  //               </View>
+  //               <Ionicons name="chevron-forward" size={20} color="#ccc" />
+  //             </TouchableOpacity>
+
+  //             <TouchableOpacity
+  //               style={{
+  //                 flexDirection: 'row',
+  //                 alignItems: 'center',
+  //                 paddingVertical: 16,
+  //                 paddingHorizontal: 20,
+  //                 borderBottomWidth: 1,
+  //                 borderBottomColor: '#f0f0f0',
+  //               }}
+  //               onPress={() => {
+  //                 setModalVisible(false);
+  //                 // router.push('/wishlist');
+  //               }}
+  //             >
+  //               <View style={{
+  //                 width: 40,
+  //                 height: 40,
+  //                 borderRadius: 20,
+  //                 backgroundColor: '#f8f9fa',
+  //                 justifyContent: 'center',
+  //                 alignItems: 'center',
+  //                 marginRight: 16,
+  //               }}>
+  //                 <Ionicons name="heart-outline" size={20} color="#8000FF" />
+  //               </View>
+  //               <View style={{ flex: 1 }}>
+  //                 <Text style={{ fontSize: 16, fontWeight: '500', color: '#333' }}>
+  //                   Wishlist
+  //                 </Text>
+  //                 <Text style={{ fontSize: 12, color: '#666', marginTop: 2 }}>
+  //                   Your saved items
+  //                 </Text>
+  //               </View>
+  //               <Ionicons name="chevron-forward" size={20} color="#ccc" />
+  //             </TouchableOpacity>
+
+  //             {/* Help & Support */}
+  //             <TouchableOpacity
+  //               style={{
+  //                 flexDirection: 'row',
+  //                 alignItems: 'center',
+  //                 paddingVertical: 16,
+  //                 paddingHorizontal: 20,
+  //                 borderBottomWidth: 1,
+  //                 borderBottomColor: '#f0f0f0',
+  //               }}
+  //               onPress={() => {
+  //                 setModalVisible(false);
+  //                 // router.push('/support');
+  //               }}
+  //             >
+  //               <View style={{
+  //                 width: 40,
+  //                 height: 40,
+  //                 borderRadius: 20,
+  //                 backgroundColor: '#f8f9fa',
+  //                 justifyContent: 'center',
+  //                 alignItems: 'center',
+  //                 marginRight: 16,
+  //               }}>
+  //                 <Ionicons name="help-circle-outline" size={20} color="#8000FF" />
+  //               </View>
+  //               <View style={{ flex: 1 }}>
+  //                 <Text style={{ fontSize: 16, fontWeight: '500', color: '#333' }}>
+  //                   Help & Support
+  //                 </Text>
+  //                 <Text style={{ fontSize: 12, color: '#666', marginTop: 2 }}>
+  //                   Get assistance
+  //                 </Text>
+  //               </View>
+  //               <Ionicons name="chevron-forward" size={20} color="#ccc" />
+  //             </TouchableOpacity>
+
+  //             <TouchableOpacity
+  //               style={{
+  //                 flexDirection: 'row',
+  //                 alignItems: 'center',
+  //                 paddingVertical: 16,
+  //                 paddingHorizontal: 20,
+  //                 borderBottomWidth: 1,
+  //                 borderBottomColor: '#f0f0f0',
+  //               }}
+  //               onPress={() => {
+  //                 setModalVisible(false);
+  //                 // router.push('/settings');
+  //               }}
+  //             >
+  //               <View style={{
+  //                 width: 40,
+  //                 height: 40,
+  //                 borderRadius: 20,
+  //                 backgroundColor: '#f8f9fa',
+  //                 justifyContent: 'center',
+  //                 alignItems: 'center',
+  //                 marginRight: 16,
+  //               }}>
+  //                 <Ionicons name="settings-outline" size={20} color="#8000FF" />
+  //               </View>
+  //               <View style={{ flex: 1 }}>
+  //                 <Text style={{ fontSize: 16, fontWeight: '500', color: '#333' }}>
+  //                   Settings
+  //                 </Text>
+  //                 <Text style={{ fontSize: 12, color: '#666', marginTop: 2 }}>
+  //                   App preferences
+  //                 </Text>
+  //               </View>
+  //               <Ionicons name="chevron-forward" size={20} color="#ccc" />
+  //             </TouchableOpacity>
+
+  //           </View>
+  const UserMenu = () => (
+    <Modal
+      visible={modalVisible}
+      transparent
+      animationType="fade"
+      onRequestClose={() => setModalVisible(false)}
+    >
+      <TouchableOpacity
+        activeOpacity={1}
+        style={{ flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.3)' }}
+        onPress={() => setModalVisible(false)}
       >
-        <TouchableOpacity
-          style={styles.profileModalOverlay}
-          activeOpacity={1}
-          onPress={() => setProfileModalVisible(false)}
-        >
-          <View style={{ flex: 1 }} pointerEvents="box-none">
-            <TouchableOpacity
-              activeOpacity={1}
-              style={styles.profileModalContainer}
-              onPress={e => e.stopPropagation()}
-            >
-              <View style={styles.profileRow}>
-                <View style={styles.profileIconWrap}>
-                  <Ionicons name="person-circle-outline" size={48} color="#8000FF" />
-                </View>
-                <View style={styles.profileTextWrap}>
-                  <Text style={styles.profileName} numberOfLines={1}>
+        <View style={{ flex: 1 }} pointerEvents="box-none">
+          <TouchableOpacity
+            activeOpacity={1}
+            style={{
+              position: 'absolute',
+              top: 70,
+              right: 20,
+              backgroundColor: 'white',
+              borderRadius: 12,
+              padding: 16,
+              shadowColor: '#000',
+              shadowOpacity: 0.2,
+              shadowRadius: 8,
+              elevation: 8,
+              minWidth: 220,
+              borderWidth: 1,
+              borderColor: '#e0e0e0',
+            }}
+            onPress={(e) => e.stopPropagation()}
+          >
+            {/* User Info Section */}
+            <View className="border-b border-gray-200 pb-3 mb-3">
+              <View className="flex-row items-center mb-2">
+                <Ionicons name="person-circle" size={40} color="#8000FF" />
+                <View className="flex-1 ml-3">
+                  <Text className="text-base font-semibold text-gray-800">
                     {user?.displayName || 'User'}
                   </Text>
-                  <Text style={styles.profileEmail} numberOfLines={1}>
+                  <Text className="text-sm text-gray-600" numberOfLines={1}>
                     {user?.email || 'No email'}
                   </Text>
                 </View>
               </View>
-              <TouchableOpacity
-                style={styles.logoutButton}
-                onPress={logout}
-              >
-                <View style={styles.logoutRow}>
-                  <Ionicons name="log-out-outline" size={20} color="#fff" style={{ marginRight: 8 }} />
-                  <Text style={styles.logoutButtonText}>Logout</Text>
-                </View>
-              </TouchableOpacity>
+            </View>
+
+            <TouchableOpacity
+              className="rounded-lg py-2 px-4 mt-2 flex-row items-center justify-center"
+              style={{ alignSelf: 'flex-start', marginLeft: 15 }}
+              onPress={async () => {
+                const auth = getAuth();
+                await signOut(auth);
+                setModalVisible(false);
+                router.replace('/login');
+              }}
+            >
+              <Ionicons name="exit-outline" size={18} color="#8000FF" />
+              <Text className="text-[#8000FF] font-medium ml-2">Logout</Text>
             </TouchableOpacity>
-          </View>
-        </TouchableOpacity>
-      </Modal>
+          </TouchableOpacity>
+        </View>
+      </TouchableOpacity>
+    </Modal>
+  );
+
+  return (
+    <SafeAreaView className="flex-1 bg-white">
+      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+
+      <UserMenu />
+
       {loading ? (
         <Text className="text-center mt-4">Loading...</Text>
       ) : error ? (
@@ -159,173 +385,43 @@ export default function Index() {
           numColumns={2}
           contentContainerStyle={{ padding: 10, justifyContent: "center" }}
           ListHeaderComponent={
-            <>
-
-              <View className="flex-row items-center px-2 py-2 mb-2">
-                <View
-                  className="flex-1 flex-row items-center bg-gray-100 border border-electric rounded-full mx-2"
-                  style={{ height: 36, paddingHorizontal: 12 }}
-                >
-                  <Ionicons name="search" size={18} color="#888" />
-                  <TextInput
-                    placeholder="Search products"
-                    placeholderTextColor="#999"
-                    className="flex-1 text-sm"
-                    style={{ paddingHorizontal: 8, paddingVertical: 0 }}
-                    value={search}
-                    onChangeText={setSearch}
-                  />
-                </View>
-
-                <TouchableOpacity
-                  onPress={() => router.push("/notification")}
-                  style={{ position: "relative", marginRight: 10 }}
-                >
-                  <Ionicons name="notifications-outline" size={26} color="#555" />
-                  <NotificationBadge count={unreadNotificationCount} />
-                </TouchableOpacity>
-
-                {user ? (
-                  <TouchableOpacity
-                    style={{ position: 'relative', top: -2 }}
-                    onPress={() => setProfileModalVisible(true)}
-                  >
-                    <Ionicons name="person-circle-outline" size={32} color="#8000FF" />
-                  </TouchableOpacity>
-                ) : (
-                  <TouchableOpacity
-                    onPress={() => router.push("/login")}
-                    style={{ position: 'relative', top: -2 }}
-                  >
-                    <Ionicons name="log-in-outline" size={32} color="#8000FF" />
-                  </TouchableOpacity>
-                )}
+            <View className="flex-row items-center px-4 py-2 mb-2">
+              <View
+                className="flex-1 flex-row items-center bg-gray-100 border border-electric rounded-full mx-2"
+                style={{ height: 36, paddingHorizontal: 12 }}
+              >
+                <Ionicons name="search" size={18} color="#888" />
+                <TextInput
+                  placeholder="Search products"
+                  placeholderTextColor="#999"
+                  className="flex-1 text-sm"
+                  style={{ paddingHorizontal: 8, paddingVertical: 0 }}
+                  value={search}
+                  onChangeText={setSearch}
+                />
               </View>
 
               <TouchableOpacity
-                onPress={() => Linking.openURL(liveNoti.link)}
-                activeOpacity={0.85}
-                style={styles.notiBanner}
+                onPress={() => router.push('/notification')}
+                style={{ position: 'relative', marginRight: 12 }}
               >
-                <Image
-                  source={{ uri: liveNoti.imageUrl }}
-                  style={styles.notiImage}
-                  resizeMode="cover"
-                />
-                <View style={{ flex: 1 }}>
-                  <View style={styles.notiLiveRow}>
-                    <Text style={styles.notiLiveText}>LIVE</Text>
-                    <Ionicons name="logo-youtube" size={18} color="#e11d48" />
-                  </View>
-                  <Text style={styles.notiTitle} numberOfLines={1}>
-                    {liveNoti.title}
-                  </Text>
-                  <Text style={styles.notiMessage} numberOfLines={2}>
-                    {liveNoti.message}
-                  </Text>
-                </View>
+                <Ionicons name="notifications-outline" size={24} color="#555" />
+                <NotificationBadge count={unreadNotificationCount} />
               </TouchableOpacity>
-            </>
+
+              {user ? <TouchableOpacity onPress={() => setModalVisible(true)}>
+                <Ionicons name="person-circle-outline" size={30} color="#8000FF" />
+              </TouchableOpacity>
+                : <TouchableOpacity onPress={() => router.push('/login')}>
+                  <Ionicons name="person-circle-outline" size={30} color="#8000FF" />
+                </TouchableOpacity>
+              }
+            </View>
           }
         />
       )}
     </SafeAreaView>
+
+
   );
 }
-
-const styles = StyleSheet.create({
-  profileModalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.2)'
-  },
-  profileModalContainer: {
-    position: 'absolute',
-    top: 80,
-    right: 20,
-    backgroundColor: 'white',
-    borderRadius: 12,
-    padding: 20,
-    shadowColor: '#000',
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 5,
-    minWidth: 220
-  },
-  profileRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 18,
-  },
-  profileIconWrap: {
-    marginRight: 14,
-  },
-  profileTextWrap: {
-    flex: 1,
-  },
-  profileName: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#8000FF',
-    marginBottom: 2,
-  },
-  profileEmail: {
-    fontSize: 14,
-    color: '#555',
-  },
-  logoutButton: {
-    backgroundColor: '#ef4444',
-    borderRadius: 8,
-    paddingVertical: 12,
-    marginTop: 8,
-    alignItems: 'center',
-  },
-  logoutRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  logoutButtonText: {
-    color: 'white',
-    textAlign: 'center',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-  notiBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff0f6',
-    borderRadius: 14,
-    marginBottom: 12,
-    marginHorizontal: 2,
-    padding: 10,
-    shadowColor: '#8000FF',
-    shadowOpacity: 0.08,
-    shadowRadius: 6,
-    elevation: 2,
-  },
-  notiImage: {
-    width: 60,
-    height: 60,
-    borderRadius: 10,
-    marginRight: 12
-  },
-  notiLiveRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 2
-  },
-  notiLiveText: {
-    color: '#e11d48',
-    fontWeight: 'bold',
-    marginRight: 8
-  },
-  notiTitle: {
-    fontWeight: 'bold',
-    fontSize: 15,
-    color: '#222'
-  },
-  notiMessage: {
-    color: '#444',
-    fontSize: 13
-  }
-});

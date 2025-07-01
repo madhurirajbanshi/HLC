@@ -1,7 +1,7 @@
 import { auth } from '@/firebaseConfig';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
 import React, { useState } from 'react';
 import {
   SafeAreaView,
@@ -66,7 +66,6 @@ const SignUp = () => {
           position: 'top',
           visibilityTime: 2000,
         });
-        await updateProfile(user.user, { displayName: username });
         router.replace('/(tabs)');
       }
     } catch (error) {
@@ -92,7 +91,7 @@ const SignUp = () => {
   };
 
   const navigateToLogin = () => {
-    router.push('/login'); // Navigate to login page
+    router.push('/login');
   };
 
   return (
@@ -193,7 +192,7 @@ const SignUp = () => {
 
           <TouchableOpacity style={styles.switchMode} onPress={navigateToLogin}>
             <Text style={styles.switchModeText}>
-              Already have an account? 
+              Already have an account?
               <Text style={styles.switchModeLink}> Login</Text>
             </Text>
           </TouchableOpacity>

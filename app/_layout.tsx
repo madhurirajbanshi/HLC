@@ -5,7 +5,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SplashScreen from 'expo-splash-screen';
 import '../global.css';
 
-// Keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
@@ -19,13 +18,10 @@ export default function RootLayout() {
         const userToken = await AsyncStorage.getItem('userToken');
 
         if (hasSeenOnboarding === null) {
-          // Show onboarding screen
           router.replace('/(onboarding)/onboarding');
         } else if (userToken) {
-          // Show main app
           router.replace('/(tabs)');
         } else {
-          // Show login screen
           router.replace('/(auth)/login');
         }
       } catch (error) {
@@ -47,12 +43,10 @@ export default function RootLayout() {
   return (
     <>
       <Stack screenOptions={{ headerShown: false }}>
-        {/* Route groups */}
         <Stack.Screen name="(onboarding)" />
         <Stack.Screen name="(auth)" />
         <Stack.Screen name="(tabs)" />
 
-        {/* Standalone screens */}
         <Stack.Screen name="product/[id]" />
       </Stack>
       <Toast />
