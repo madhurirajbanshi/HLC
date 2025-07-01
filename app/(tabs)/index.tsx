@@ -4,7 +4,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import {
-  Dimensions,
   FlatList,
   Image,
   Modal,
@@ -72,235 +71,7 @@ export default function Index() {
       </Text>
     </TouchableOpacity>
   );
-
-  // const UserMenuDrawer = () => (
-  //   <Modal
-  //     visible={modalVisible}
-  //     transparent
-  //     animationType="slide"
-  //     onRequestClose={() => setModalVisible(false)}
-  //   >
-  //     <View style={{ flex: 1, backgroundColor: "rgba(0, 0, 0, 0.5)" }}>
-  //       <TouchableOpacity
-  //         style={{ flex: 1 }}
-  //         activeOpacity={1}
-  //         onPress={() => setModalVisible(false)}
-  //       />
-
-  //       <View
-  //         style={{
-  //           position: 'absolute',
-  //           left: 0,
-  //           top: 0,
-  //           bottom: 0,
-  //           width: width * 0.8,
-  //           maxWidth: 320,
-  //           backgroundColor: 'white',
-  //           shadowColor: '#000',
-  //           shadowOffset: { width: 2, height: 0 },
-  //           shadowOpacity: 0.25,
-  //           shadowRadius: 10,
-  //           elevation: 16,
-  //         }}
-  //       >
-  //         <ScrollView style={{ flex: 1 }}>
-  //           <View style={{ 
-  //             backgroundColor: 'white', 
-  //             paddingTop: 50, 
-  //             paddingBottom: 20, 
-  //             paddingHorizontal: 20,
-  //             borderBottomWidth: 1,
-  //             borderBottomColor: '#f0f0f0'
-  //           }}>
-  //             <TouchableOpacity
-  //               onPress={() => setModalVisible(false)}
-  //               style={{ position: 'absolute', top: 45, right: 15 }}
-  //             >
-  //               <Ionicons name="close" size={24} color="#333" />
-  //             </TouchableOpacity>
-
-  //             <View className="items-center">
-  //               <View style={{
-  //                 width: 80,
-  //                 height: 80,
-  //                 borderRadius: 40,
-  //                 backgroundColor: '#f8f9fa',
-  //                 justifyContent: 'center',
-  //                 alignItems: 'center',
-  //                 marginBottom: 12,
-  //                 borderWidth: 2,
-  //                 borderColor: '#8000FF'
-  //               }}>
-  //                 <Ionicons name="person" size={40} color="#8000FF" />
-  //               </View>
-
-  //               <Text style={{ 
-  //                 color: '#333', 
-  //                 fontSize: 18, 
-  //                 fontWeight: 'bold',
-  //                 marginBottom: 4 
-  //               }}>
-  //                 {user?.displayName || "User"}
-  //               </Text>
-
-  //               <Text style={{ 
-  //                 color: '#666', 
-  //                 fontSize: 14,
-  //                 textAlign: 'center'
-  //               }}>
-  //                 {user?.email || "No email"}
-  //               </Text>
-  //             </View>
-  //           </View>
-
-  //           <View style={{ paddingVertical: 20 }}>
-
-  //             <TouchableOpacity
-  //               style={{
-  //                 flexDirection: 'row',
-  //                 alignItems: 'center',
-  //                 paddingVertical: 16,
-  //                 paddingHorizontal: 20,
-  //                 borderBottomWidth: 1,
-  //                 borderBottomColor: '#f0f0f0',
-  //               }}
-  //               onPress={() => {
-  //                 setModalVisible(false);
-  //                 router.push('/orders');
-  //               }}
-  //             >
-  //               <View style={{
-  //                 width: 40,
-  //                 height: 40,
-  //                 borderRadius: 20,
-  //                 backgroundColor: '#f8f9fa',
-  //                 justifyContent: 'center',
-  //                 alignItems: 'center',
-  //                 marginRight: 16,
-  //               }}>
-  //                 <Ionicons name="bag-outline" size={20} color="#8000FF" />
-  //               </View>
-  //               <View style={{ flex: 1 }}>
-  //                 <Text style={{ fontSize: 16, fontWeight: '500', color: '#333' }}>
-  //                   My Orders
-  //                 </Text>
-  //                 <Text style={{ fontSize: 12, color: '#666', marginTop: 2 }}>
-  //                   Track your purchases
-  //                 </Text>
-  //               </View>
-  //               <Ionicons name="chevron-forward" size={20} color="#ccc" />
-  //             </TouchableOpacity>
-
-  //             <TouchableOpacity
-  //               style={{
-  //                 flexDirection: 'row',
-  //                 alignItems: 'center',
-  //                 paddingVertical: 16,
-  //                 paddingHorizontal: 20,
-  //                 borderBottomWidth: 1,
-  //                 borderBottomColor: '#f0f0f0',
-  //               }}
-  //               onPress={() => {
-  //                 setModalVisible(false);
-  //                 // router.push('/wishlist');
-  //               }}
-  //             >
-  //               <View style={{
-  //                 width: 40,
-  //                 height: 40,
-  //                 borderRadius: 20,
-  //                 backgroundColor: '#f8f9fa',
-  //                 justifyContent: 'center',
-  //                 alignItems: 'center',
-  //                 marginRight: 16,
-  //               }}>
-  //                 <Ionicons name="heart-outline" size={20} color="#8000FF" />
-  //               </View>
-  //               <View style={{ flex: 1 }}>
-  //                 <Text style={{ fontSize: 16, fontWeight: '500', color: '#333' }}>
-  //                   Wishlist
-  //                 </Text>
-  //                 <Text style={{ fontSize: 12, color: '#666', marginTop: 2 }}>
-  //                   Your saved items
-  //                 </Text>
-  //               </View>
-  //               <Ionicons name="chevron-forward" size={20} color="#ccc" />
-  //             </TouchableOpacity>
-
-  //             {/* Help & Support */}
-  //             <TouchableOpacity
-  //               style={{
-  //                 flexDirection: 'row',
-  //                 alignItems: 'center',
-  //                 paddingVertical: 16,
-  //                 paddingHorizontal: 20,
-  //                 borderBottomWidth: 1,
-  //                 borderBottomColor: '#f0f0f0',
-  //               }}
-  //               onPress={() => {
-  //                 setModalVisible(false);
-  //                 // router.push('/support');
-  //               }}
-  //             >
-  //               <View style={{
-  //                 width: 40,
-  //                 height: 40,
-  //                 borderRadius: 20,
-  //                 backgroundColor: '#f8f9fa',
-  //                 justifyContent: 'center',
-  //                 alignItems: 'center',
-  //                 marginRight: 16,
-  //               }}>
-  //                 <Ionicons name="help-circle-outline" size={20} color="#8000FF" />
-  //               </View>
-  //               <View style={{ flex: 1 }}>
-  //                 <Text style={{ fontSize: 16, fontWeight: '500', color: '#333' }}>
-  //                   Help & Support
-  //                 </Text>
-  //                 <Text style={{ fontSize: 12, color: '#666', marginTop: 2 }}>
-  //                   Get assistance
-  //                 </Text>
-  //               </View>
-  //               <Ionicons name="chevron-forward" size={20} color="#ccc" />
-  //             </TouchableOpacity>
-
-  //             <TouchableOpacity
-  //               style={{
-  //                 flexDirection: 'row',
-  //                 alignItems: 'center',
-  //                 paddingVertical: 16,
-  //                 paddingHorizontal: 20,
-  //                 borderBottomWidth: 1,
-  //                 borderBottomColor: '#f0f0f0',
-  //               }}
-  //               onPress={() => {
-  //                 setModalVisible(false);
-  //                 // router.push('/settings');
-  //               }}
-  //             >
-  //               <View style={{
-  //                 width: 40,
-  //                 height: 40,
-  //                 borderRadius: 20,
-  //                 backgroundColor: '#f8f9fa',
-  //                 justifyContent: 'center',
-  //                 alignItems: 'center',
-  //                 marginRight: 16,
-  //               }}>
-  //                 <Ionicons name="settings-outline" size={20} color="#8000FF" />
-  //               </View>
-  //               <View style={{ flex: 1 }}>
-  //                 <Text style={{ fontSize: 16, fontWeight: '500', color: '#333' }}>
-  //                   Settings
-  //                 </Text>
-  //                 <Text style={{ fontSize: 12, color: '#666', marginTop: 2 }}>
-  //                   App preferences
-  //                 </Text>
-  //               </View>
-  //               <Ionicons name="chevron-forward" size={20} color="#ccc" />
-  //             </TouchableOpacity>
-
-  //           </View>
+  
   const UserMenu = () => (
     <Modal
       visible={modalVisible}
@@ -347,6 +118,20 @@ export default function Index() {
                 </View>
               </View>
             </View>
+
+            {/* Menu Options */}
+            <TouchableOpacity
+              className="rounded-lg py-2 px-4 mt-2 flex-row items-center justify-center"
+              style={{ alignSelf: 'flex-start', marginLeft: 15 }}
+              onPress={() => {
+                setModalVisible(false);
+                router.push('/setting');
+              }}
+            >
+              <Ionicons name="settings-outline"
+               size={18} color="#8000FF" />
+              <Text className="text-[#8000FF] font-medium ml-2">Setting</Text>
+            </TouchableOpacity>
 
             <TouchableOpacity
               className="rounded-lg py-2 px-4 mt-2 flex-row items-center justify-center"

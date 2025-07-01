@@ -9,6 +9,11 @@ export default function Layout() {
           title: 'Checkout',
         }}
       />
+      <Stack.Screen
+        name="setting"
+        options={{
+          title: 'Settings',
+        }} />
     </Stack>
   );
 }

@@ -1,52 +1,47 @@
-import { useEffect, useState } from 'react';
-import { Stack, router } from 'expo-router';
-import Toast from 'react-native-toast-message';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
+import { useEffect, useState } from 'react';
+import Toast from 'react-native-toast-message';
 import '../global.css';
 
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const [isReady, setIsReady] = useState(false);
+  const [initialRoute, setInitialRoute] = useState<string | null>(null);
 
   useEffect(() => {
     const checkInitialRoute = async () => {
       try {
-        // Fixed: Use consistent key name
         const hasSeenOnboarding = await AsyncStorage.getItem('hasSeenOnboarding');
-        const userToken = await AsyncStorage.getItem('userToken');
-
         if (hasSeenOnboarding === null) {
-          router.replace('/(onboarding)/onboarding');
-        } else if (userToken) {
-          router.replace('/(tabs)');
+          setInitialRoute('onboarding');
         } else {
-          router.replace('/(auth)/login');
+          setInitialRoute('tabs');
         }
       } catch (error) {
-        console.error('Routing error:', error);
-        router.replace('/(auth)/login');
-      } finally {
-        setIsReady(true);
-        setTimeout(() => {
-          SplashScreen.hideAsync();
-        }, 500);
+        setInitialRoute('tabs');
       }
     };
-
     checkInitialRoute();
   }, []);
 
-  if (!isReady) return null;
+  useEffect(() => {
+    if (initialRoute) {
+      setTimeout(() => {
+        SplashScreen.hideAsync();
+      }, 200);
+    }
+  }, [initialRoute]);
+
+  if (!initialRoute) return null;
 
   return (
     <>
-      <Stack screenOptions={{ headerShown: false }}>
+      <Stack screenOptions={{ headerShown: false }} initialRouteName={initialRoute === 'onboarding' ? '(onboarding)' : '(tabs)'}>
         <Stack.Screen name="(onboarding)" />
         <Stack.Screen name="(auth)" />
         <Stack.Screen name="(tabs)" />
-
         <Stack.Screen name="product/[id]" />
       </Stack>
       <Toast />
